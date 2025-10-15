@@ -15,7 +15,7 @@
 
         <init-param>
             <param-name>TemplatePath</param-name>
-            <param-value>/</param-value>
+            <param-value>/WEB-INF/templates/</param-value>
         </init-param>
 
         <init-param>

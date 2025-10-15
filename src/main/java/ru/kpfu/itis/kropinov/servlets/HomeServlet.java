@@ -12,6 +12,6 @@ public class HomeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("ctx", req.getContextPath());
-        req.getRequestDispatcher("/WEB-INF/templates/index.ftl").forward(req, resp);
+        req.getRequestDispatcher("index.ftl").forward(req, resp);
     }
 }
