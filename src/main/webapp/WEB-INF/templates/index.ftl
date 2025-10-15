@@ -81,6 +81,10 @@
     </section>
 </#macro>
 
+<#macro page_extra_head>
+    <link rel="stylesheet" href="/${ctx}/assets/css/index.css">
+</#macro>
+
 <#macro page_footer>
     <#include "footer.ftl">
 </#macro>
