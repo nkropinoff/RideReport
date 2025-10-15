@@ -1,0 +1,23 @@
+.custom-pills {
+    background-color: #f1f5f9;
+    border-radius: 0.75rem;
+    padding: 0.25rem;
+}
+.custom-pills .nav-link {
+    color: #475569;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease-in-out;
+}
+.custom-pills .nav-link:hover {
+    color: #1e293b;
+}
+.custom-pills .nav-link.active {
+    background-color: #ffffff;
+    color: #0f172a;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.tab-content .tab-pane {
+    transition: opacity 0.2s ease-in-out;
+}
