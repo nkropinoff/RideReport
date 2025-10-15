@@ -63,7 +63,7 @@
                 <div class="col-lg-8">
                     <h2 class="fw-semibold mb-3">Для транспортных компаний</h2>
                     <p class="lead mb-4">Подключите панель и начните получать обратную связь от пассажиров: управляемые маршруты, фильтруемые отзывы, наглядная статистика по показателям и ТС.</p>
-                    <a href="#" class="btn btn-cta px-4">Зарегистрировать компанию</a>
+                    <a href="${ctx}/register?role=company" class="btn btn-cta px-4">Зарегистрировать компанию</a>
                 </div>
                 <div class="col-lg-4">
                     <div class="hero-card p-4">

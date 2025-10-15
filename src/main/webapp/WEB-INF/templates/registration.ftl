@@ -1,3 +1,7 @@
+<#macro page_extra_head>
+    <link rel="stylesheet" href="${ctx}/assets/css/registration.css">
+</#macro>
+
 <#macro page_content>
     <div class="container">
         <div class="row justify-content-center my-5">
@@ -75,8 +79,8 @@
     </div>
 </#macro>
 
-<#macro page_extra_head>
-    <link rel="stylesheet" href="${ctx}/assets/css/registration.css">
+<#macro page_extra_script>
+    <script src="${ctx}/assets/js/registration.js"></script>
 </#macro>
 
 <#macro page_footer>
