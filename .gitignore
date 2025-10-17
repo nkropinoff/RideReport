@@ -7,14 +7,8 @@ target/
 src/main/resources/*.properties
 !src/main/resources/*.properties.template
 
-### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
-*.iws
-*.iml
-*.ipr
+### Intellij IDEA project files ###
+/.idea
 
 ### Eclipse ###
 .apt_generated
