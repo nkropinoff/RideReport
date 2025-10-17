@@ -21,8 +21,10 @@ public class RegistrationServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setAttribute("ctx", req.getContextPath());
+
         String role = req.getParameter("role");
-        if (role == null || !(role.equals("user") || role.equals("company"))) {
+        if (role == null || !(role.equals("passenger") || role.equals("company"))) {
             req.setAttribute("error", "Роль регистрирующегося пользователя не указана или указана неверно.");
             req.getRequestDispatcher("registration.ftl").forward(req, resp);
             return;
@@ -32,7 +34,7 @@ public class RegistrationServlet extends HttpServlet {
         String password = req.getParameter("password");
 
         if (email == null || password == null || email.isBlank() || password.isBlank()) {
-            req.setAttribute("error", "Поля 'Email и Пароль' обязательны для заполнения.");
+            req.setAttribute("error", "Поля 'Email' и 'Пароль' обязательны для заполнения.");
             req.getRequestDispatcher("registration.ftl").forward(req, resp);
             return;
         }
@@ -40,8 +42,7 @@ public class RegistrationServlet extends HttpServlet {
         UserService userService = (UserService) getServletContext().getAttribute("userService");
         OperationResult result;
 
-        if (role.equals("user")) {
-
+        if (role.equals("passenger")) {
             result = userService.registerPassenger(email, password);
         } else {
             String companyName = req.getParameter("companyName");
