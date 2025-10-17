@@ -1,5 +1,8 @@
 package ru.kpfu.itis.kropinov.db;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -8,21 +11,28 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class CustomConnectionPool {
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomConnectionPool.class);
+
     private final String url;
     private final String user;
     private final String password;
     private final int poolSize;
     private final BlockingQueue<Connection> pool;
 
-    public CustomConnectionPool(String url, String user, String password, int poolSize) throws SQLException {
+    public CustomConnectionPool(String url, String user, String password, int poolSize) {
         this.url = url;
         this.user = user;
         this.password = password;
         this.poolSize = poolSize;
         this.pool = new ArrayBlockingQueue<>(poolSize);
 
-        for (int i = 0; i < poolSize; i++) {
-            pool.add(createConnection());
+        try {
+            Class.forName("org.postgresql.Driver");
+            for (int i = 0; i < poolSize; i++) pool.add(createConnection());
+        } catch (SQLException | ClassNotFoundException e) {
+            logger.error("Failed to create connection pool", e);
+            throw new RuntimeException("Failed to create connection pool", e);
         }
     }
 
