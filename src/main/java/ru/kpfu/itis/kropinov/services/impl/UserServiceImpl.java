@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
         if (!isValidEmail(email)) return OperationResult.error("Email не соответствует формату.");
         if (!isValidPassword(password)) return OperationResult.error("Длина пароля должна быть не менее 8 символов.");
 
-        if (userDao.findByEmail(email).isPresent()) {
+        if (isEmailTaken(email)) {
             logger.warn("User with email {} exist already.", email);
             return OperationResult.error("Пользователь с таким email уже существует.");
         }
@@ -53,5 +53,9 @@ public class UserServiceImpl implements UserService {
 
     private boolean isValidPassword(String password) {
         return !(password == null || password.length() < 8);
+    }
+
+    public boolean isEmailTaken(String email) {
+        return userDao.findByEmail(email).isPresent();
     }
 }
