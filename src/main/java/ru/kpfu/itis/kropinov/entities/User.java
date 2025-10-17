@@ -3,6 +3,7 @@ package ru.kpfu.itis.kropinov.entities;
 import ru.kpfu.itis.kropinov.enums.Role;
 
 public class User {
+    private Integer id;
     private String email;
     private String hashedPassword;
     private Role role;
@@ -24,4 +25,13 @@ public class User {
     public Role getRole() {
         return role;
     }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
 }
