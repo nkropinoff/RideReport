@@ -1,0 +1,15 @@
+# Template for database configuration.
+# Copy this file to 'database.properties' and fill your specific properties
+# Do not commit 'database.properties' file to git.
+
+# Database connection URL
+db.url=
+
+# Database username
+db.username=
+
+# Database password
+db.password=
+
+# Connection pool size
+db.poolsize=
