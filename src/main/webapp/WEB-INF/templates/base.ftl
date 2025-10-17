@@ -37,6 +37,9 @@
     </#if>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const ctx = '${ctx}';
+    </script>
 
     <#if .namespace.page_extra_script??>
         <@page_extra_script />
