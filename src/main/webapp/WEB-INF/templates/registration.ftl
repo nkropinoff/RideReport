@@ -37,7 +37,10 @@
                                     <input type="hidden" name="role" value="passenger">
                                     <div class="mb-3">
                                         <label for="passengerEmail" class="form-label">Email</label>
-                                        <input type="email" class="form-control form-control-sm" id="passengerEmail" name="email" required>
+                                        <input type="email" class="form-control form-control-sm email-check" id="passengerEmail" name="email" required>
+                                        <div class="invalid-feedback">
+                                            Этот email уже используется.
+                                        </div>
                                     </div>
                                     <div class="mb-4">
                                         <label for="passengerPassword" class="form-label">Пароль</label>
@@ -60,7 +63,10 @@
                                     </div>
                                     <div class="mb-3">
                                         <label for="companyEmail" class="form-label">Рабочий Email</label>
-                                        <input type="email" class="form-control form-control-sm" id="companyEmail" name="email" required>
+                                        <input type="email" class="form-control form-control-sm email-check" id="companyEmail" name="email" required>
+                                        <div class="invalid-feedback">
+                                            Этот email уже используется.
+                                        </div>
                                     </div>
                                     <div class="mb-4">
                                         <label for="companyPassword" class="form-label">Пароль</label>
