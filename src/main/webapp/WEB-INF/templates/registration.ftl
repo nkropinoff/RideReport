@@ -15,6 +15,12 @@
                             </p>
                         </div>
 
+                        <#if error?has_content>
+                            <div class="alert alert-danger" role="alert">
+                                ${error}
+                            </div>
+                        </#if>
+
                         <ul class="nav nav-pills nav-fill mb-4 custom-pills" id="registerTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="passenger-tab" data-bs-toggle="pill" data-bs-target="#passenger-form" type="button" role="tab" aria-controls="passenger-form" aria-selected="true">Пассажир</button>
