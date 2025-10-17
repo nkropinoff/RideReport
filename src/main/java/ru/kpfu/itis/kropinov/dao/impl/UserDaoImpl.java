@@ -24,11 +24,11 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void save(User user) {
+    public User save(User user) {
         String sql = "insert into users (email, password_hash, role) values (?, ?, ?::user_role)";
 
         try (Connection conn = ds.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, user.getEmail());
             stmt.setString(2, user.getHashedPassword());
@@ -39,6 +39,17 @@ public class UserDaoImpl implements UserDao {
                 logger.warn("User with email {} was not saved, executeUpdate returned 0.", user.getEmail());
                 throw new UserNotSavedException("User was not saved");
             }
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    user.setId(generatedKeys.getInt(1));
+                } else {
+                    logger.error("User was saved, but no id obtained");
+                    throw new SQLException("User was saved, but no id obtained");
+                }
+            }
+
+            return user;
         } catch (SQLException e) {
             logger.error("Error while saving user with email {}", user.getEmail(), e);
             throw new UserNotSavedException("Error while saving user", e);
