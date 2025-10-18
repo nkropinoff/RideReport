@@ -29,7 +29,7 @@ public class EmailCheckServlet extends HttpServlet {
 
         boolean isAvailable = false;
         if (email != null && !email.isBlank()) {
-            isAvailable = userService.isEmailTaken(email);
+            isAvailable = !userService.isEmailTaken(email);
         }
 
         Map<String, Boolean> responseData = Map.of("isAvailable", isAvailable);
