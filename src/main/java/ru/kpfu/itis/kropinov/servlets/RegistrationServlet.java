@@ -1,6 +1,7 @@
 package ru.kpfu.itis.kropinov.servlets;
 
 import ru.kpfu.itis.kropinov.dto.Result;
+import ru.kpfu.itis.kropinov.entities.User;
 import ru.kpfu.itis.kropinov.services.UserService;
 
 import javax.servlet.ServletException;
@@ -12,6 +13,14 @@ import java.io.IOException;
 
 @WebServlet(name="RegistrationServlet", urlPatterns = "/register")
 public class RegistrationServlet extends HttpServlet {
+
+    private UserService userService;
+
+    @Override
+    public void init() throws ServletException {
+        userService = (UserService) getServletContext().getAttribute("userService");
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("pageTitle", "Регистрация");
@@ -39,7 +48,6 @@ public class RegistrationServlet extends HttpServlet {
             return;
         }
 
-        UserService userService = (UserService) getServletContext().getAttribute("userService");
         Result<Void> result;
 
         if (role.equals("passenger")) {
