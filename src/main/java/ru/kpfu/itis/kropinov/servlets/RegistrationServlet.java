@@ -1,6 +1,6 @@
 package ru.kpfu.itis.kropinov.servlets;
 
-import ru.kpfu.itis.kropinov.dto.OperationResult;
+import ru.kpfu.itis.kropinov.dto.Result;
 import ru.kpfu.itis.kropinov.services.UserService;
 
 import javax.servlet.ServletException;
@@ -40,7 +40,7 @@ public class RegistrationServlet extends HttpServlet {
         }
 
         UserService userService = (UserService) getServletContext().getAttribute("userService");
-        OperationResult result;
+        Result<Void> result;
 
         if (role.equals("passenger")) {
             result = userService.registerPassenger(email, password);
