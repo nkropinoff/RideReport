@@ -6,7 +6,6 @@ import ru.kpfu.itis.kropinov.dao.UserDao;
 import ru.kpfu.itis.kropinov.dto.OperationResult;
 import ru.kpfu.itis.kropinov.entities.User;
 import ru.kpfu.itis.kropinov.enums.Role;
-import ru.kpfu.itis.kropinov.exceptions.UserNotSavedException;
 import ru.kpfu.itis.kropinov.services.UserService;
 import ru.kpfu.itis.kropinov.utils.PasswordUtil;
 
@@ -24,20 +23,14 @@ public class UserServiceImpl implements UserService {
         if (!isValidPassword(password)) return OperationResult.error("Длина пароля должна быть не менее 8 символов.");
 
         if (isEmailTaken(email)) {
-            logger.warn("User with email {} exist already.", email);
+            logger.warn("User with email {} already exist.", email);
             return OperationResult.error("Пользователь с таким email уже существует.");
         }
 
         String hashedPassword = PasswordUtil.encrypt(password);
         User passenger = new User(email, hashedPassword, Role.PASSENGER);
 
-        try {
-            userDao.save(passenger);
-        } catch (UserNotSavedException e) {
-            logger.error("Error while user with email {} registration.", email);
-            return OperationResult.error("Ошибка при регистрации пользователя.");
-        }
-
+        userDao.save(passenger);
         return OperationResult.success();
     }
 
