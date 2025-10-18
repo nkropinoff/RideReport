@@ -5,8 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.kpfu.itis.kropinov.dao.UserDao;
 import ru.kpfu.itis.kropinov.entities.User;
 import ru.kpfu.itis.kropinov.enums.Role;
-import ru.kpfu.itis.kropinov.exceptions.UserLookupByEmailException;
-import ru.kpfu.itis.kropinov.exceptions.UserNotSavedException;
+import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -37,7 +36,7 @@ public class UserDaoImpl implements UserDao {
             int result = stmt.executeUpdate();
             if (result == 0) {
                 logger.warn("User with email {} was not saved, executeUpdate returned 0.", user.getEmail());
-                throw new UserNotSavedException("User was not saved");
+                throw new DataAccessException("User was not saved");
             }
 
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
@@ -45,14 +44,14 @@ public class UserDaoImpl implements UserDao {
                     user.setId(generatedKeys.getInt(1));
                 } else {
                     logger.error("User was saved, but no id obtained");
-                    throw new SQLException("User was saved, but no id obtained");
+                    throw new DataAccessException("User was saved, but no id obtained");
                 }
             }
 
             return user;
         } catch (SQLException e) {
             logger.error("Error while saving user with email {}", user.getEmail(), e);
-            throw new UserNotSavedException("Error while saving user", e);
+            throw new DataAccessException("Error while saving user with email: " + user.getEmail(), e);
         }
     }
 
@@ -75,7 +74,7 @@ public class UserDaoImpl implements UserDao {
             return user == null ? Optional.empty() : Optional.of(user);
         } catch (SQLException e) {
             logger.error("Error while finding user by email {}", email, e);
-            throw new UserLookupByEmailException("Error while finding user by email: " + email, e);
+            throw new DataAccessException("Error while finding user by email: " + email, e);
         }
     }
 }
