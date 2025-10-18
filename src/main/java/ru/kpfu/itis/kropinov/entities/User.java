@@ -14,6 +14,13 @@ public class User {
         this.role = role;
     }
 
+    public User(Integer id, String email, String hashedPassword, Role role) {
+        this.id = id;
+        this.email = email;
+        this.hashedPassword = hashedPassword;
+        this.role = role;
+    }
+
     public String getEmail() {
         return email;
     }
