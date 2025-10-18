@@ -66,6 +66,7 @@ public class UserDaoImpl implements UserDao {
             User user = null;
             if (rs != null && rs.next()) {
                 user = new User(
+                        rs.getInt(1),
                         rs.getString("email"),
                         rs.getString("password_hash"),
                         Role.valueOf(rs.getString("role"))
