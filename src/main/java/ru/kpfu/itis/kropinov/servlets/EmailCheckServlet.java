@@ -35,8 +35,6 @@ public class EmailCheckServlet extends HttpServlet {
         Map<String, Boolean> responseData = Map.of("isAvailable", isAvailable);
 
         resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-
         objectMapper.writeValue(resp.getWriter(), responseData);
     }
 }
