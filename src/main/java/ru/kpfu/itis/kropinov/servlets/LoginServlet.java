@@ -26,13 +26,11 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("pageTitle", "Вход в аккаунт");
-        req.setAttribute("ctx", req.getContextPath());
         req.getRequestDispatcher("login.ftl").forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setAttribute("ctx", req.getContextPath());
 
         String email = req.getParameter("email");
         String password = req.getParameter("password");

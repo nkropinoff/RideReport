@@ -24,13 +24,11 @@ public class RegistrationServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("pageTitle", "Регистрация");
-        req.setAttribute("ctx", req.getContextPath());
         req.getRequestDispatcher("registration.ftl").forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setAttribute("ctx", req.getContextPath());
 
         String role = req.getParameter("role");
         if (role == null || !(role.equals("passenger") || role.equals("company"))) {
