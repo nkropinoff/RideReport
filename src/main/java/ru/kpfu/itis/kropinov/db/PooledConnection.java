@@ -18,6 +18,7 @@ public class PooledConnection implements Connection {
     @Override
     public void close() throws SQLException {
         if (!isClosed) {
+            realConnection.setAutoCommit(true);
             pool.realiseConnection(this);
             isClosed = true;
         }
