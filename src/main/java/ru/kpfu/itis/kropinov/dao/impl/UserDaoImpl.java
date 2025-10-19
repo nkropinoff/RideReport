@@ -27,6 +27,7 @@ public class UserDaoImpl implements UserDao {
         try (Connection conn = ds.getConnection()) {
             return saveWithConnection(user, conn);
         } catch (SQLException e) {
+            logger.error("Could not obtain a database connection for saving user");
             throw new DataAccessException("Could not obtain a database connection for saving user", e);
         }
     }
