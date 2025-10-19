@@ -1,7 +1,9 @@
 package ru.kpfu.itis.kropinov.listeners;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ru.kpfu.itis.kropinov.dao.CompanyDao;
 import ru.kpfu.itis.kropinov.dao.UserDao;
+import ru.kpfu.itis.kropinov.dao.impl.CompanyDaoImpl;
 import ru.kpfu.itis.kropinov.dao.impl.UserDaoImpl;
 import ru.kpfu.itis.kropinov.db.CustomConnectionPool;
 import ru.kpfu.itis.kropinov.db.CustomDataSource;
@@ -26,8 +28,9 @@ public class InitListener implements ServletContextListener {
         );
         DataSource dataSource = new CustomDataSource(connectionPool);
 
+        CompanyDao companyDao = new CompanyDaoImpl(dataSource);
         UserDao userDao = new UserDaoImpl(dataSource);
-        UserService userService = new UserServiceImpl(userDao);
+        UserService userService = new UserServiceImpl(dataSource, userDao);
         sce.getServletContext().setAttribute("userService", userService);
 
         sce.getServletContext().setAttribute("objectMapper", new ObjectMapper());
