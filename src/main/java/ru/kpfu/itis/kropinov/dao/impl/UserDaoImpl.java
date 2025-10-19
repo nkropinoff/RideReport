@@ -24,8 +24,8 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User save(User user) {
-        try (Connection conn = ds.getConnection()) {
-            return saveWithConnection(user, conn);
+        try (Connection connection = ds.getConnection()) {
+            return saveWithConnection(user, connection);
         } catch (SQLException e) {
             logger.error("Could not obtain a database connection for saving user");
             throw new DataAccessException("Could not obtain a database connection for saving user", e);
@@ -68,8 +68,8 @@ public class UserDaoImpl implements UserDao {
     @Override
     public Optional<User> findByEmail(String email) {
         String sql = "select * from users where email = ?";
-        try (Connection conn = ds.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection connection = ds.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, email);
 
             ResultSet rs = stmt.executeQuery();
