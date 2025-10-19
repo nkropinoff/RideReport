@@ -24,11 +24,19 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User save(User user) {
+        try (Connection conn = ds.getConnection()) {
+            return saveWithConnection(user, conn);
+        } catch (SQLException e) {
+            throw new DataAccessException("Could not obtain a database connection for saving user", e);
+        }
+    }
+
+    @Override
+    public User saveWithConnection(User user, Connection connection) {
         String sql = "insert into users (email, password_hash, role) values (?, ?, ?::user_role)";
 
-        try (Connection conn = ds.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, user.getEmail());
             stmt.setString(2, user.getHashedPassword());
             stmt.setString(3, user.getRole().name());
@@ -53,6 +61,7 @@ public class UserDaoImpl implements UserDao {
             logger.error("Error while saving user with email {}", user.getEmail(), e);
             throw new DataAccessException("Error while saving user with email: " + user.getEmail(), e);
         }
+
     }
 
     @Override
