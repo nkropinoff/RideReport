@@ -12,15 +12,18 @@
                         </div>
 
                         <#if error?has_content>
-                            <div class="alert alert-danger" role="alert">
-                                ${error}
+                            <div class="alert alert-light border border-danger bg-light rounded-3" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-exclamation-circle text-danger me-3 fs-5"></i>
+                                    <div class="text-dark">${error}</div>
+                                </div>
                             </div>
                         </#if>
 
                         <form action="${ctx}/login" method="post">
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control form-control-sm" id="email" name="email" required>
+                                <input type="email" class="form-control form-control-sm" id="email" name="email" value="${email!''}" required>
                             </div>
                             <div class="mb-4">
                                 <label for="password" class="form-label">Пароль</label>
@@ -37,6 +40,10 @@
             </div>
         </div>
     </div>
+</#macro>
+
+<#macro page_extra_script>
+    <script src="${ctx}/assets/js/login.js"></script>
 </#macro>
 
 <#macro page_footer>
