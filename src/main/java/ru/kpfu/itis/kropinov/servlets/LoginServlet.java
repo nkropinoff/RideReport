@@ -34,6 +34,8 @@ public class LoginServlet extends HttpServlet {
 
         String email = req.getParameter("email");
         String password = req.getParameter("password");
+        req.setAttribute("email", email);
+        req.setAttribute("pageTitle", "Вход в аккаунт");
 
         if (email == null || password == null || email.isBlank() || password.isBlank()) {
             req.setAttribute("error", "Поля 'Email' и 'Пароль' обязательны для заполнения.");
