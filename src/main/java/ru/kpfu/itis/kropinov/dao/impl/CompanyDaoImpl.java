@@ -3,7 +3,6 @@ package ru.kpfu.itis.kropinov.dao.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.kpfu.itis.kropinov.dao.CompanyDao;
-import ru.kpfu.itis.kropinov.dto.Result;
 import ru.kpfu.itis.kropinov.entities.Company;
 import ru.kpfu.itis.kropinov.enums.VerifyStatus;
 import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
@@ -35,10 +34,10 @@ public class CompanyDaoImpl implements CompanyDao {
 
     @Override
     public Company saveWithConnection(Company company, Connection connection) {
-        String sql = "insert into companies (user_id, name, inn, verify_status) values (?, ?, ?, ?::verify_status)";
+        String sql = "insert into companies (user_id, name, inn, status) values (?, ?, ?, ?::verify_status)";
 
         try {
-            PreparedStatement stmt = connection.prepareStatement(sql);
+            PreparedStatement stmt = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 
             stmt.setInt(1, company.getUserId());
             stmt.setString(2, company.getCompanyName());
