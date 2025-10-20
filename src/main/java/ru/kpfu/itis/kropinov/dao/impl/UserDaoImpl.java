@@ -82,7 +82,7 @@ public class UserDaoImpl implements UserDao {
                         Role.valueOf(rs.getString("role"))
                 );
             }
-            return user == null ? Optional.empty() : Optional.of(user);
+            return Optional.ofNullable(user);
         } catch (SQLException e) {
             logger.error("Error while finding user by email {}", email, e);
             throw new DataAccessException("Error while finding user by email: " + email, e);
