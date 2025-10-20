@@ -16,28 +16,35 @@
                         </div>
 
                         <#if error?has_content>
-                            <div class="alert alert-danger" role="alert">
-                                ${error}
+                            <div class="alert alert-light border border-danger bg-light rounded-3 alert-transition" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-exclamation-circle text-danger me-3 fs-5"></i>
+                                    <div class="text-dark">${error}</div>
+                                </div>
                             </div>
                         </#if>
 
                         <ul class="nav nav-pills nav-fill mb-4 custom-pills" id="registerTab" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="passenger-tab" data-bs-toggle="pill" data-bs-target="#passenger-form" type="button" role="tab" aria-controls="passenger-form" aria-selected="true">Пассажир</button>
+                                <button class="nav-link <#if !(role?? && role == 'company')>active</#if>" id="passenger-tab" data-bs-toggle="pill" data-bs-target="#passenger-form" type="button" role="tab" aria-controls="passenger-form" aria-selected="${(!(role?? && role == 'company'))?c}">
+                                    Пассажир
+                                </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="company-tab" data-bs-toggle="pill" data-bs-target="#company-form" type="button" role="tab" aria-controls="company-form" aria-selected="false">Компания</button>
+                                <button class="nav-link <#if role?? && role == 'company'>active</#if>" id="company-tab" data-bs-toggle="pill" data-bs-target="#company-form" type="button" role="tab" aria-controls="company-form" aria-selected="${(role?? && role == 'company')?c}">
+                                    Компания
+                                </button>
                             </li>
                         </ul>
 
                         <div class="tab-content" id="registerTabContent">
 
-                            <div class="tab-pane fade show active" id="passenger-form" role="tabpanel" aria-labelledby="passenger-tab">
+                            <div class="tab-pane fade <#if !(role?? && role == 'company')>show active</#if>" id="passenger-form" role="tabpanel" aria-labelledby="passenger-tab">
                                 <form action="${ctx}/register" method="post">
                                     <input type="hidden" name="role" value="passenger">
                                     <div class="mb-3">
                                         <label for="passengerEmail" class="form-label">Email</label>
-                                        <input type="email" class="form-control form-control-sm email-check" id="passengerEmail" name="email" required>
+                                        <input type="email" class="form-control form-control-sm email-check" id="passengerEmail" name="email" value="<#if role?? && role == 'passenger'>${email!''}</#if>" required>
                                         <div class="invalid-feedback">
                                             Этот email уже используется.
                                         </div>
@@ -50,20 +57,20 @@
                                 </form>
                             </div>
 
-                            <div class="tab-pane fade" id="company-form" role="tabpanel" aria-labelledby="company-tab">
+                            <div class="tab-pane fade <#if role?? && role == 'company'>show active</#if>" id="company-form" role="tabpanel" aria-labelledby="company-tab">
                                 <form action="${ctx}/register" method="post">
                                     <input type="hidden" name="role" value="company">
                                     <div class="mb-3">
                                         <label for="companyName" class="form-label">Название компании</label>
-                                        <input type="text" class="form-control form-control-sm" id="companyName" name="companyName" required>
+                                        <input type="text" class="form-control form-control-sm" id="companyName" name="companyName" value="${companyName!''}" required>
                                     </div>
                                     <div class="mb-3">
                                         <label for="inn" class="form-label">ИНН</label>
-                                        <input type="text" class="form-control form-control-sm" id="inn" name="inn" required pattern="[0-9]{10,12}" title="10 или 12 цифр">
+                                        <input type="text" class="form-control form-control-sm" id="inn" name="inn" value="${inn!''}" required pattern="^(\d{10}|\d{12})$" title="ИНН должен состоять из 10 или 12 цифр">
                                     </div>
                                     <div class="mb-3">
                                         <label for="companyEmail" class="form-label">Рабочий Email</label>
-                                        <input type="email" class="form-control form-control-sm email-check" id="companyEmail" name="email" required>
+                                        <input type="email" class="form-control form-control-sm email-check" id="companyEmail" name="email" value="<#if role?? && role == 'company'>${email!''}</#if>" required>
                                         <div class="invalid-feedback">
                                             Этот email уже используется.
                                         </div>
