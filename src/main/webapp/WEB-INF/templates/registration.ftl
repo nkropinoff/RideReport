@@ -16,7 +16,7 @@
                         </div>
 
                         <#if error?has_content>
-                            <div class="alert alert-light border border-danger bg-light rounded-3 alert-transition" role="alert">
+                            <div class="alert alert-light border border-danger bg-light rounded-3" role="alert">
                                 <div class="d-flex align-items-center">
                                     <i class="bi bi-exclamation-circle text-danger me-3 fs-5"></i>
                                     <div class="text-dark">${error}</div>

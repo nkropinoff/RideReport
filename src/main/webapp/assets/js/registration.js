@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const formInputs = document.querySelectorAll('.card-body form input');
 
         const hideAlert = () => {
-            errorAlert.style.display = 'none';
+            $(errorAlert).fadeOut(300);
         };
 
         formInputs.forEach(input => {

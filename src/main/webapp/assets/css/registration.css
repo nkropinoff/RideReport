@@ -20,10 +20,3 @@
 .tab-content .tab-pane {
     transition: opacity 0.2s ease-in-out;
 }
-.alert.alert-transition {
-    opacity: 1;
-    transition: opacity 0.3s ease-out;
-}
-.alert.alert-transition.hiding {
-    opacity: 0;
-}
