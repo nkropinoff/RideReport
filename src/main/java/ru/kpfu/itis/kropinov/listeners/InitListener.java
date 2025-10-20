@@ -30,7 +30,8 @@ public class InitListener implements ServletContextListener {
 
         CompanyDao companyDao = new CompanyDaoImpl(dataSource);
         UserDao userDao = new UserDaoImpl(dataSource);
-        UserService userService = new UserServiceImpl(dataSource, userDao);
+
+        UserService userService = new UserServiceImpl(dataSource, userDao, companyDao);
         sce.getServletContext().setAttribute("userService", userService);
 
         sce.getServletContext().setAttribute("objectMapper", new ObjectMapper());
