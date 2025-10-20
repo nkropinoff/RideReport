@@ -58,7 +58,7 @@
                             </div>
 
                             <div class="tab-pane fade <#if role?? && role == 'company'>show active</#if>" id="company-form" role="tabpanel" aria-labelledby="company-tab">
-                                <form action="${ctx}/register" method="post">
+                                <form action="${ctx}/register" method="post" enctype="multipart/form-data">
                                     <input type="hidden" name="role" value="company">
                                     <div class="mb-3">
                                         <label for="companyName" class="form-label">Название компании</label>
@@ -75,14 +75,35 @@
                                             Этот email уже используется.
                                         </div>
                                     </div>
-                                    <div class="mb-4">
+                                    <div class="mb-3">
                                         <label for="companyPassword" class="form-label">Пароль</label>
                                         <input type="password" class="form-control form-control-sm" id="companyPassword" name="password" required>
                                     </div>
 
-                                    <!-- TODO: add section for uploading file -->
+                                    <div class="mb-4">
+                                        <div class="mb-2">
+                                            <div class="tooltip-wrapper">
+                                                <span class="form-label mb-0">Подтверждающие документы</span>
+                                                <span class="info-icon">i</span>
+                                                <div class="tooltip-content">
+                                                    <ul class="list-unstyled mb-0">
+                                                        <li>&bull; Свидетельство ОГРН/ОГРНИП</li>
+                                                        <li>&bull; Свидетельство ИНН</li>
+                                                        <li>&bull; Паспорт представителя</li>
+                                                        <li>&bull; Доверенность на право действовать от имени организации</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <input class="form-control form-control-sm" type="file" id="companyDocuments" name="documents" multiple>
+                                        <div id="fileList" class="mt-2"></div>
+                                        <small class="form-text text-muted">
+                                            Загрузите до 4 документов, каждый не более 10 МБ.
+                                        </small>
 
-                                    <button type="submit" class="btn btn-cta btn-primary w-100">Отправить заявку</button>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-cta btn-primary w-100">Отправить заявку на регистрацию</button>
                                 </form>
                             </div>
                         </div>
