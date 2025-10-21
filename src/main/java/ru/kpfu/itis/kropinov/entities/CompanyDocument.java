@@ -50,4 +50,3 @@ public class CompanyDocument {
         return sizeBytes;
     }
 }
-}
