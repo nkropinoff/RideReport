@@ -1,16 +1,26 @@
 package ru.kpfu.itis.kropinov.servlets;
 
+import ru.kpfu.itis.kropinov.dto.CompanyRegistrationDto;
+import ru.kpfu.itis.kropinov.dto.PassengerRegistrationDto;
 import ru.kpfu.itis.kropinov.dto.Result;
 import ru.kpfu.itis.kropinov.entities.User;
 import ru.kpfu.itis.kropinov.services.UserService;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
+@MultipartConfig(
+        maxFileSize = 10 * 1024 * 1024,
+        maxRequestSize = 4 * (10 * 1024 * 1024)
+)
 @WebServlet(name="RegistrationServlet", urlPatterns = "/register")
 public class RegistrationServlet extends HttpServlet {
 
@@ -52,7 +62,8 @@ public class RegistrationServlet extends HttpServlet {
         Result<Void> result;
 
         if (role.equals("passenger")) {
-            result = userService.registerPassenger(email, password);
+            PassengerRegistrationDto passengerRegistrationDto = new PassengerRegistrationDto(email, password);
+            result = userService.registerPassenger(passengerRegistrationDto);
         } else {
             String companyName = req.getParameter("companyName");
             String inn = req.getParameter("inn");
@@ -66,7 +77,18 @@ public class RegistrationServlet extends HttpServlet {
                 return;
             }
 
-            result = userService.registerCompany(email, password, companyName, inn);
+            List<Part> companyDocuments = req.getParts().stream()
+                    .filter(part -> (part.getName().equals("documents") && part.getSize() > 0))
+                    .toList();
+
+            if (companyDocuments.size() > 4) {
+                req.setAttribute("error", "Можно загрузить не более 4 документов");
+                req.getRequestDispatcher("registration.ftl").forward(req, resp);
+                return;
+            }
+
+            CompanyRegistrationDto companyRegistrationDto = new CompanyRegistrationDto(email, password, companyName, inn, companyDocuments);
+            result = userService.registerCompany(companyRegistrationDto);
         }
 
         if (result.isSuccess()) {
