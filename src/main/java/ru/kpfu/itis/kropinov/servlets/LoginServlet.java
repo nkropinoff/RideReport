@@ -1,6 +1,7 @@
 package ru.kpfu.itis.kropinov.servlets;
 
 import ru.kpfu.itis.kropinov.dto.Result;
+import ru.kpfu.itis.kropinov.dto.UserLoginDto;
 import ru.kpfu.itis.kropinov.dto.UserSessionDto;
 import ru.kpfu.itis.kropinov.services.UserService;
 
@@ -43,7 +44,9 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        Result<UserSessionDto> result = userService.login(email, password);
+
+        UserLoginDto userLoginDto = new UserLoginDto(email, password);
+        Result<UserSessionDto> result = userService.login(userLoginDto);
         if (!result.isSuccess()) {
             req.setAttribute("error", result.getErrorMessage());
             req.getRequestDispatcher("login.ftl").forward(req, resp);

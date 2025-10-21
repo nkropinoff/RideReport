@@ -1,11 +1,10 @@
 package ru.kpfu.itis.kropinov.services;
 
-import ru.kpfu.itis.kropinov.dto.Result;
-import ru.kpfu.itis.kropinov.dto.UserSessionDto;
+import ru.kpfu.itis.kropinov.dto.*;
 
 public interface UserService {
-    Result<Void> registerPassenger(String email, String password);
-    Result<Void> registerCompany(String email, String password, String companyName, String inn);
+    Result<Void> registerPassenger(PassengerRegistrationDto dto);
+    Result<Void> registerCompany(CompanyRegistrationDto dto);
     boolean isEmailTaken(String email);
-    Result<UserSessionDto> login(String email, String password);
+    Result<UserSessionDto> login(UserLoginDto dto);
 }
