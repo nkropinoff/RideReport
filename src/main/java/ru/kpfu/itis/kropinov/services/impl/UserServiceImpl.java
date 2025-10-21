@@ -3,19 +3,25 @@ package ru.kpfu.itis.kropinov.services.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.kpfu.itis.kropinov.dao.CompanyDao;
+import ru.kpfu.itis.kropinov.dao.CompanyDocumentDao;
 import ru.kpfu.itis.kropinov.dao.UserDao;
-import ru.kpfu.itis.kropinov.dto.Result;
-import ru.kpfu.itis.kropinov.dto.UserSessionDto;
+import ru.kpfu.itis.kropinov.dto.*;
 import ru.kpfu.itis.kropinov.entities.Company;
+import ru.kpfu.itis.kropinov.entities.CompanyDocument;
 import ru.kpfu.itis.kropinov.entities.User;
 import ru.kpfu.itis.kropinov.enums.Role;
 import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
+import ru.kpfu.itis.kropinov.services.FileStorageService;
 import ru.kpfu.itis.kropinov.services.UserService;
 import ru.kpfu.itis.kropinov.utils.PasswordUtil;
 
+import javax.servlet.http.Part;
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class UserServiceImpl implements UserService {
@@ -23,15 +29,22 @@ public class UserServiceImpl implements UserService {
     private final UserDao userDao;
     private final DataSource dataSource;
     private final CompanyDao companyDao;
+    private final FileStorageService fileStorageService;
+    private final CompanyDocumentDao companyDocumentDao;
 
-    public UserServiceImpl(DataSource dataSource, UserDao userDao, CompanyDao companyDao) {
+    public UserServiceImpl(DataSource dataSource, FileStorageService fileStorageService,  UserDao userDao, CompanyDao companyDao, CompanyDocumentDao companyDocumentDao) {
         this.dataSource = dataSource;
         this.userDao = userDao;
         this.companyDao = companyDao;
+        this.fileStorageService = fileStorageService;
+        this.companyDocumentDao = companyDocumentDao;
     }
 
     @Override
-    public Result<Void> registerPassenger(String email, String password) {
+    public Result<Void> registerPassenger(PassengerRegistrationDto dto) {
+        String email = dto.getEmail();
+        String password = dto.getPassword();
+
         if (!isValidEmail(email)) return Result.error("Email не соответствует формату.");
         if (!isValidPassword(password)) return Result.error("Длина пароля должна быть не менее 8 символов.");
 
@@ -48,16 +61,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Result<Void> registerCompany(String email, String password, String companyName, String inn) {
+    public Result<Void> registerCompany(CompanyRegistrationDto dto) {
+        String email = dto.getEmail();
+        String password = dto.getPassword();
+        String companyName = dto.getCompanyName();
+        String inn = dto.getInn();
+        List<Part> companyDocuments = dto.getCompanyDocuments();
+
         if (!isValidEmail(email)) return Result.error("Email не соответствует формату.");
         if (!isValidPassword(password)) return Result.error("Длина пароля должна быть не менее 8 символов.");
         if (!isValidInn(inn)) return Result.error("ИНН должен состоять из 10 или 12 цифр.");
         if (!isValidCompanyName(companyName)) return Result.error("Название компании не может быть пустым.");
+        Result<Void> companyDocumentsValidation = validCompanyDocuments(companyDocuments);
+        if (!companyDocumentsValidation.isSuccess()) return companyDocumentsValidation;
 
         if (isEmailTaken(email)) {
             logger.warn("User with email {} connected to company already exist.", email);
             return Result.error("Пользователь с таким email, представляющий компанию, уже существует.");
         }
+
+
+        List<String> savedStorageIDs = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection()) {
             try {
@@ -70,10 +94,19 @@ public class UserServiceImpl implements UserService {
                 Company company = new Company(savedUser.getId(), companyName, inn);
                 companyDao.saveWithConnection(company, connection);
 
+                for (Part part : companyDocuments) {
+                   String storageID = fileStorageService.saveFile(part.getInputStream(), part.getSubmittedFileName(), part.getContentType());
+                   savedStorageIDs.add(storageID);
+
+                    CompanyDocument document = new CompanyDocument(company.getId(), storageID, part.getSubmittedFileName(), part.getContentType(), part.getSize());
+                    companyDocumentDao.saveWithConnection(document, connection);
+                }
+
                 connection.commit();
                 return Result.success();
-            } catch (SQLException | DataAccessException e) {
+            } catch (SQLException | IOException | DataAccessException e) {
                 rollback(connection);
+                rollbackSavedFiles(savedStorageIDs);
                 logger.error("Failed during company registration transaction.", e);
                 throw new DataAccessException("Failed during company registration transaction.", e);
             }
@@ -83,8 +116,18 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    private void rollbackSavedFiles(List<String> savedStorageIDs) {
+        for (String storageId : savedStorageIDs) {
+            fileStorageService.deleteFile(storageId);
+        }
+    }
+
+
     @Override
-    public Result<UserSessionDto> login(String email, String password) {
+    public Result<UserSessionDto> login(UserLoginDto dto) {
+        String email = dto.getEmail();
+        String password = dto.getPassword();
+
         if (!isValidEmail(email)) return Result.error("Email не соответствует формату.");
         if (!isValidPassword(password)) return Result.error("Длина пароля должна быть не менее 8 символов.");
 
@@ -147,5 +190,25 @@ public class UserServiceImpl implements UserService {
 
     public boolean isEmailTaken(String email) {
         return userDao.findByEmail(email).isPresent();
+    }
+
+    private Result<Void> validCompanyDocuments(List<Part> companyDocuments) {
+        int maxFiles = 4;
+        if (companyDocuments.size() > maxFiles) {
+            return Result.error(String.format("Разрешено загружать не более %d файлов.", maxFiles));
+        }
+
+        long maxFileSize = 10 * 1024 * 1024;
+        for (Part filePart : companyDocuments) {
+            if (filePart == null || filePart.getSize() == 0) return Result.error("Обнаружен пустой файл.");
+            if (filePart.getSize() > maxFileSize) return Result.error(String.format("Файл '%s' превышает размер 10МБ", filePart.getSubmittedFileName()));
+
+            String contentType = filePart.getContentType();
+            if (!contentType.equals("application/pdf") && !contentType.startsWith("image/")) {
+                return Result.error(String.format("Недопустимый формат файла '%s'. Разрешены PDF или изображения.", filePart.getSubmittedFileName()));
+            }
+        }
+
+        return Result.success();
     }
 }
