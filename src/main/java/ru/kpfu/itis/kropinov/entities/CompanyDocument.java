@@ -49,4 +49,8 @@ public class CompanyDocument {
     public Long getSizeBytes() {
         return sizeBytes;
     }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 }
