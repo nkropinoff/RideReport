@@ -3,6 +3,7 @@ package ru.kpfu.itis.kropinov.dao.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.kpfu.itis.kropinov.dao.CompanyDao;
+import ru.kpfu.itis.kropinov.dto.Result;
 import ru.kpfu.itis.kropinov.entities.Company;
 import ru.kpfu.itis.kropinov.enums.VerifyStatus;
 import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
@@ -12,6 +13,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class CompanyDaoImpl implements CompanyDao {
@@ -66,6 +69,7 @@ public class CompanyDaoImpl implements CompanyDao {
         }
     }
 
+    @Override
     public Optional<Company> findByUserId(int userId) {
         String sql = "select * from companies where user_id = ?";
         try (Connection connection = ds.getConnection();
@@ -90,4 +94,73 @@ public class CompanyDaoImpl implements CompanyDao {
             throw new DataAccessException("Error while finding company by userId: " + userId, e);
         }
     };
+
+    @Override
+    public List<Company> findAll(int page, int size, String sortOrder, VerifyStatus status) {
+        StringBuilder sql = new StringBuilder("SELECT * FROM companies ");
+
+        if (status != null) {
+            sql.append("WHERE status = ?::verify_status ");
+        }
+
+        String finalSortOrder = "desc".equalsIgnoreCase(sortOrder) ? "DESC" : "ASC";
+        sql.append("ORDER BY created_at ").append(finalSortOrder);
+        sql.append("LIMIT ? OFFSET ?");
+
+        List<Company> companies = new ArrayList<>();
+        try (Connection connection = ds.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
+
+            int paramIndex = 1;
+
+            if (status != null) {
+                stmt.setString(paramIndex++, status.name());
+            }
+
+            stmt.setInt(paramIndex++, size);
+            stmt.setInt(paramIndex, (page - 1) * size);
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                companies.add(new Company(
+                        rs.getInt("id"),
+                        rs.getInt("user_id"),
+                        rs.getString("name"),
+                        rs.getString("inn"),
+                        VerifyStatus.valueOf(rs.getString("status"))
+                ));
+            }
+
+            return companies;
+        } catch (SQLException e) {
+            logger.error("Error fetching companies with pagination", e);
+            throw new DataAccessException("Error fetching companies with pagination", e);
+        }
+    }
+
+    public int countAll(VerifyStatus status) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM companies ");
+
+        if (status != null) {
+            sql.append("WHERE status = ?::verify_status");
+        }
+
+        try (Connection connection = ds.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
+
+            if (status != null) {
+                stmt.setString(1, status.name());
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            logger.error("Error counting companies", e);
+            throw new DataAccessException("Error counting companies", e);
+        }
+
+        return 0;
+    }
 }
