@@ -13,20 +13,41 @@
             <div class="collapse navbar-collapse" id="topNav">
                 <ul class="navbar-nav ms-auto align-items-lg-center gap-2">
 
-                    <!-- TODO: specific buttons for authorized users -->
+                    <#if !user??>
+                        <li class="nav-item">
+                            <a class="btn btn-raise px-3" href="${ctx}/#how">Как это работает</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-raise px-3" href="${ctx}/#for-companies">Для компаний</a>
+                        </li>
+                        <li class="nav-item ms-lg-2">
+                            <a class="btn btn-soft-outline px-3" href="${ctx}/login">Войти</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-cta px-3" href="${ctx}/register">Регистрация</a>
+                        </li>
+                    <#else>
+                        <#if user.role == 'ADMIN'>
+                            <li class="nav-item">
+                                <a class="btn btn-cta px-3" href="${ctx}/admin/dashboard">Панель управления</a>
+                            </li>
+                        <#elseif user.role == 'COMPANY'>
+                            <li class="nav-item">
+                                <a class="btn btn-cta px-3" href="${ctx}/company/dashboard">Панель управления</a>
+                            </li>
+                        <#elseif user.role == 'PASSENGER'>
+                            <li class="nav-item">
+                                <a class="btn btn-cta px-3" href="${ctx}/feedback/new">Оставить отзыв</a>
+                            </li>
+                        </#if>
 
-                    <li class="nav-item">
-                        <a class="btn btn-raise px-3" href="${ctx}/#how">Как это работает</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-raise px-3" href="${ctx}/#for-companies">Для компаний</a>
-                    </li>
-                    <li class="nav-item ms-lg-2">
-                        <a class="btn btn-soft-outline px-3" href="${ctx}/login">Войти</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-cta px-3" href="${ctx}/register">Регистрация</a>
-                    </li>
+                        <!--TODO: change logout nav item to drop menu with settings and logout -->
+
+                        <li class="nav-item ms-lg-2">
+                            <a class="btn btn-soft-outline px-3" href="${ctx}/logout">Выйти</a>
+                        </li>
+                    </#if>
+
                 </ul>
             </div>
         </div>
