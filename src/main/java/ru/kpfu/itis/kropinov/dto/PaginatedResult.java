@@ -1,8 +1,9 @@
 package ru.kpfu.itis.kropinov.dto;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class PaginatedResult<T> {
+public class PaginatedResult<T> implements Serializable {
     private List<T> data;
     private final int totalPages;
     private final int currentPage;
