@@ -10,6 +10,7 @@ import ru.kpfu.itis.kropinov.entities.Company;
 import ru.kpfu.itis.kropinov.entities.CompanyDocument;
 import ru.kpfu.itis.kropinov.entities.User;
 import ru.kpfu.itis.kropinov.enums.Role;
+import ru.kpfu.itis.kropinov.enums.VerifyStatus;
 import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
 import ru.kpfu.itis.kropinov.services.FileStorageService;
 import ru.kpfu.itis.kropinov.services.UserService;
@@ -143,6 +144,29 @@ public class UserServiceImpl implements UserService {
             return Result.error("Неверный email или пароль.");
         }
 
+        if (user.getRole() == Role.COMPANY) {
+            Optional<Company> companyOptional = companyDao.findByUserId(user.getId());
+            if (companyOptional.isEmpty()) {
+                logger.error("User id {} has COMPANY role but no company record", user.getId());
+                throw new DataAccessException("Inconsistent data: COMPANY user without company record");
+            }
+
+            Company company = companyOptional.get();
+            switch (company.getStatus()) {
+                case PENDING -> {
+                    logger.info("Company {} login blocked - status PENDING", company.getCompanyName());
+                    return Result.error("Ваша заявка на регистрацию находится на рассмотрении. Попробуйте позже.");
+                }
+                case DENIED -> {
+                    logger.info("Company {} login blocked - status DENIED", company.getCompanyName());
+                    return Result.error("Ваша заявка на регистрацию отклонена. Обратитесь в службу поддержки.");
+                }
+                case APPROVED -> {}
+            }
+
+            return Result.success(createSessionDtoForCompany(user, company));
+        }
+
         return Result.success(createSessionDto(user));
     }
 
@@ -150,16 +174,12 @@ public class UserServiceImpl implements UserService {
         return switch (user.getRole()) {
             case ADMIN -> UserSessionDto.forAdmin(user.getId(), user.getEmail());
             case PASSENGER -> UserSessionDto.forPassenger(user.getId(), user.getEmail());
-            case COMPANY -> {
-                Optional<Company> companyOptional = companyDao.findByUserId(user.getId());
-                if (companyOptional.isEmpty()) {
-                    logger.error("User id {} has COMPANY role but no company record", user.getId());
-                    throw new DataAccessException("Inconsistent data: COMPANY user without company record");
-                }
-                Company company = companyOptional.get();
-                yield UserSessionDto.forCompany(user.getId(), user.getEmail(), company.getUserId(), company.getCompanyName(), company.getStatus());
-            }
+            case COMPANY -> throw new IllegalArgumentException("Must use createSessionDtoForCompany method for COMPANY role");
         };
+    }
+
+    private UserSessionDto createSessionDtoForCompany(User user, Company company) {
+        return UserSessionDto.forCompany(user.getId(), user.getEmail(), company.getId(), company.getCompanyName(), company.getStatus());
     }
 
     private void rollback(Connection connection) {
