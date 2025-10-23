@@ -64,18 +64,7 @@ public class LoginServlet extends HttpServlet {
         return switch (userSessionDto.getRole()) {
             case ADMIN -> contextPath + "/admin/dashboard";
             case PASSENGER -> contextPath + "/";
-            case COMPANY -> {
-                Optional<UserSessionDto.CompanyInfo> companyInfoOptional = userSessionDto.getCompanyInfo();
-                if (companyInfoOptional.isPresent()) {
-                    yield switch (companyInfoOptional.get().getStatus()) {
-                        case APPROVED -> contextPath + "/company/dashboard";
-                        case PENDING -> contextPath + "/company/pending";
-                        case DENIED -> contextPath + "/company/denied";
-                    };
-                }
-                yield contextPath + "/";
-            }
+            case COMPANY -> contextPath + "/company/dashboard";
         };
-
     }
 }
