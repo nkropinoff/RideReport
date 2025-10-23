@@ -3,6 +3,7 @@ package ru.kpfu.itis.kropinov.dao.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.kpfu.itis.kropinov.dao.CompanyDao;
+import ru.kpfu.itis.kropinov.dto.CompanySortingDto;
 import ru.kpfu.itis.kropinov.dto.Result;
 import ru.kpfu.itis.kropinov.entities.Company;
 import ru.kpfu.itis.kropinov.enums.VerifyStatus;
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class CompanyDaoImpl implements CompanyDao {
-    private static final Logger logger = LoggerFactory.getLogger(UserDaoImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(CompanyDaoImpl.class);
     private final DataSource ds;
 
     public CompanyDaoImpl(DataSource ds) {
@@ -30,7 +31,7 @@ public class CompanyDaoImpl implements CompanyDao {
         try (Connection connection = ds.getConnection()) {
             return saveWithConnection(company, connection);
         } catch (SQLException e) {
-            logger.error("Could not obtain a database connection for saving company");
+            logger.error("Could not obtain a database connection for saving company", e);
             throw new DataAccessException("Could not obtain a database connection for saving company", e);
         }
     }
@@ -39,8 +40,7 @@ public class CompanyDaoImpl implements CompanyDao {
     public Company saveWithConnection(Company company, Connection connection) {
         String sql = "insert into companies (user_id, name, inn, status) values (?, ?, ?, ?::verify_status)";
 
-        try {
-            PreparedStatement stmt = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+        try (PreparedStatement stmt = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
             stmt.setInt(1, company.getUserId());
             stmt.setString(2, company.getCompanyName());
@@ -76,17 +76,18 @@ public class CompanyDaoImpl implements CompanyDao {
             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, userId);
 
-            ResultSet rs = stmt.executeQuery();
             Company company = null;
-            if (rs.next()) {
-                company = new Company(
-                        rs.getInt(1),
-                        rs.getInt(2),
-                        rs.getString(3),
-                        rs.getString(4),
-                        VerifyStatus.valueOf(rs.getString(5))
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    company = new Company(
+                            rs.getInt("id"),
+                            rs.getInt("user_id"),
+                            rs.getString("name"),
+                            rs.getString("inn"),
+                            VerifyStatus.valueOf(rs.getString("status"))
 
-                );
+                    );
+                }
             }
             return Optional.ofNullable(company);
         } catch (SQLException e) {
@@ -96,41 +97,41 @@ public class CompanyDaoImpl implements CompanyDao {
     };
 
     @Override
-    public List<Company> findAll(int page, int size, String sortOrder, VerifyStatus status) {
+    public List<Company> findAllWithConnection(CompanySortingDto dto, Connection connection) {
+
         StringBuilder sql = new StringBuilder("SELECT * FROM companies ");
 
-        if (status != null) {
+        if (dto.getStatus() != null) {
             sql.append("WHERE status = ?::verify_status ");
         }
 
-        String finalSortOrder = "desc".equalsIgnoreCase(sortOrder) ? "DESC" : "ASC";
+        String finalSortOrder = "desc".equalsIgnoreCase(dto.getSortOrder()) ? "DESC" : "ASC";
         sql.append("ORDER BY created_at ").append(finalSortOrder);
-        sql.append("LIMIT ? OFFSET ?");
+        sql.append(" LIMIT ? OFFSET ?");
 
         List<Company> companies = new ArrayList<>();
-        try (Connection connection = ds.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
 
             int paramIndex = 1;
 
-            if (status != null) {
-                stmt.setString(paramIndex++, status.name());
+            if (dto.getStatus() != null) {
+                stmt.setString(paramIndex++, dto.getStatus().name());
             }
 
-            stmt.setInt(paramIndex++, size);
-            stmt.setInt(paramIndex, (page - 1) * size);
+            stmt.setInt(paramIndex++, dto.getSize());
+            stmt.setInt(paramIndex, (dto.getPage() - 1) * dto.getSize());
 
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                companies.add(new Company(
-                        rs.getInt("id"),
-                        rs.getInt("user_id"),
-                        rs.getString("name"),
-                        rs.getString("inn"),
-                        VerifyStatus.valueOf(rs.getString("status"))
-                ));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    companies.add(new Company(
+                            rs.getInt("id"),
+                            rs.getInt("user_id"),
+                            rs.getString("name"),
+                            rs.getString("inn"),
+                            VerifyStatus.valueOf(rs.getString("status"))
+                    ));
+                }
             }
-
             return companies;
         } catch (SQLException e) {
             logger.error("Error fetching companies with pagination", e);
@@ -138,29 +139,48 @@ public class CompanyDaoImpl implements CompanyDao {
         }
     }
 
-    public int countAll(VerifyStatus status) {
+    @Override
+    public List<Company> findAll(CompanySortingDto dto) {
+        try (Connection connection = ds.getConnection()) {
+            return findAllWithConnection(dto, connection);
+        } catch (SQLException e) {
+            logger.error("Could not obtain a database connection for fetching companies", e);
+            throw new DataAccessException("Could not obtain a database connection for fetching companies", e);
+        }
+    }
+
+    @Override
+    public int countAllWithConnection(VerifyStatus status, Connection connection) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM companies ");
 
         if (status != null) {
             sql.append("WHERE status = ?::verify_status");
         }
 
-        try (Connection connection = ds.getConnection();
-             PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
-
+        try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
             if (status != null) {
                 stmt.setString(1, status.name());
             }
 
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+                return 0;
             }
         } catch (SQLException e) {
             logger.error("Error counting companies", e);
             throw new DataAccessException("Error counting companies", e);
         }
+    }
 
-        return 0;
+    @Override
+    public int countAll(VerifyStatus status) {
+        try (Connection connection = ds.getConnection()) {
+            return countAllWithConnection(status, connection);
+        } catch (SQLException e) {
+            logger.error("Could not obtain a database connection for count all companies", e);
+            throw new DataAccessException("Could not obtain a database connection for count all companies", e);
+        }
     }
 }
