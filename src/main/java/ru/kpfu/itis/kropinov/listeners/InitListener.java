@@ -9,8 +9,10 @@ import ru.kpfu.itis.kropinov.dao.impl.CompanyDocumentDaoImpl;
 import ru.kpfu.itis.kropinov.dao.impl.UserDaoImpl;
 import ru.kpfu.itis.kropinov.db.CustomConnectionPool;
 import ru.kpfu.itis.kropinov.db.CustomDataSource;
+import ru.kpfu.itis.kropinov.services.CompanyService;
 import ru.kpfu.itis.kropinov.services.FileStorageService;
 import ru.kpfu.itis.kropinov.services.UserService;
+import ru.kpfu.itis.kropinov.services.impl.CompanyServiceImpl;
 import ru.kpfu.itis.kropinov.services.impl.FileStorageServiceImpl;
 import ru.kpfu.itis.kropinov.services.impl.UserServiceImpl;
 import ru.kpfu.itis.kropinov.utils.PropertiesUtil;
@@ -38,7 +40,10 @@ public class InitListener implements ServletContextListener {
 
         FileStorageService fileStorageService = new FileStorageServiceImpl();
         UserService userService = new UserServiceImpl(dataSource, fileStorageService, userDao, companyDao, companyDocumentDao);
+        CompanyService companyService = new CompanyServiceImpl(dataSource, companyDao);
+
         sce.getServletContext().setAttribute("userService", userService);
+        sce.getServletContext().setAttribute("companyService", companyService);
 
         sce.getServletContext().setAttribute("objectMapper", new ObjectMapper());
     }
