@@ -96,7 +96,7 @@ $(document).ready(function () {
 
                 return `
                     <tr>
-                    <td><a href="${ctx}/admin/company/${companyId}" class="fw-semibold text-decoration-none">${safeCompanyName}</a></td>
+                    <td><a href="${ctx}/admin/company/${companyId}" class="fw-semibold text-decoration-none" title="${safeCompanyName}">${safeCompanyName}</a></td>
                     <td>${safeInn}</td>
                     <td>${statusBadge}</td>
                     <td><a href="${ctx}/admin/company/${companyId}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a></td>
