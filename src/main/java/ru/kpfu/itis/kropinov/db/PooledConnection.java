@@ -1,14 +1,20 @@
 package ru.kpfu.itis.kropinov.db;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.*;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PooledConnection implements Connection {
+    private final static Logger logger = LoggerFactory.getLogger(PooledConnection.class);
+
     private final Connection realConnection;
     private final CustomConnectionPool pool;
-    private boolean isClosed = false;
+    private final AtomicBoolean isClosed = new AtomicBoolean(false);
 
     public PooledConnection(Connection realConnection, CustomConnectionPool pool) {
         this.realConnection = realConnection;
@@ -16,12 +22,20 @@ public class PooledConnection implements Connection {
     }
 
     @Override
-    public void close() throws SQLException {
-        if (!isClosed) {
+    public void close() {
+        if (!isClosed.compareAndSet(false, true)) return;
+
+        try {
             realConnection.setAutoCommit(true);
-            pool.realiseConnection(this);
-            isClosed = true;
+        } catch (SQLException e) {
+            logger.error("Failed to reset autoCommit, but returning to pool anyway", e);
+        } finally {
+            pool.releaseConnection(this);
         }
+    }
+
+    void reset() {
+        isClosed.set(false);
     }
 
     // Other methods of Connection interface delegated to realConnection

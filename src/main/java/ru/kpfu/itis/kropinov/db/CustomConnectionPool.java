@@ -4,11 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
-import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class CustomConnectionPool {
 
@@ -43,15 +43,24 @@ public class CustomConnectionPool {
 
     public Connection getConnection() throws SQLException {
         try {
-            return pool.take();
+            Connection connection = pool.poll(5, TimeUnit.SECONDS);
+
+            if (connection == null) {
+                logger.error("Could not get a connection from the pool within 5 seconds. The pool exhausted.");
+                throw new SQLException("Could not get a connection from the pool.");
+            }
+
+            return connection;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new SQLException("Interrupted while waiting for a connection", e);
         }
     }
 
-    void realiseConnection(Connection connection) {
+    void releaseConnection(Connection connection) {
+        if (connection instanceof PooledConnection) {
+            ((PooledConnection) connection).reset();
+        }
         pool.offer(connection);
     }
-
 }
