@@ -7,7 +7,7 @@
                 <button type="button" class="btn btn-sm btn-primary" data-status="">Все</button>
                 <button type="button" class="btn btn-sm btn-outline-secondary" data-status="PENDING">Ожидают</button>
                 <button type="button" class="btn btn-sm btn-outline-secondary" data-status="APPROVED">Одобрены</button>
-                <button type="button" class="btn btn-sm btn-outline-secondary" data-status="REJECTED">Отклонены</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-status="DENIED">Отклонены</button>
             </div>
 
             <div id="sort-filters" class="btn-group">

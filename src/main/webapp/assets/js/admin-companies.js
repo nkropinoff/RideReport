@@ -86,7 +86,7 @@ $(document).ready(function () {
                 switch (company.status) {
                     case 'PENDING': statusBadge = '<span class="badge bg-warning text-dark">Ожидание</span>'; break;
                     case 'APPROVED': statusBadge = '<span class="badge bg-success">Одобрено</span>'; break;
-                    case 'REJECTED': statusBadge = '<span class="badge bg-danger">Отклонено</span>'; break;
+                    case 'DENIED': statusBadge = '<span class="badge bg-danger">Отклонено</span>'; break;
                     default: statusBadge = `<span class="badge bg-secondary">${escapeHtml(company.status)}</span>`;
                 }
 
