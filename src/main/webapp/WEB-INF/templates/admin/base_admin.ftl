@@ -56,4 +56,7 @@
 
 <#macro page_extra_head>
     <link rel="stylesheet" href="${ctx}/assets/css/admin.css">
+    <#if .namespace.page_companies_head??>
+        <@page_companies_head />
+    </#if>
 </#macro>
