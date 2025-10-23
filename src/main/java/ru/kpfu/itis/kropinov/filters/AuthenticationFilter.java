@@ -13,7 +13,7 @@ import java.util.Set;
 @WebFilter("/*")
 public class AuthenticationFilter extends HttpFilter {
 
-    private final Set<String> allowedPaths = Set.of("/", "/login", "/register");
+    private final Set<String> allowedPaths = Set.of("/", "/login", "/logout", "/register");
     private final String allowedStatic = "/assets";
 
     @Override
