@@ -57,7 +57,6 @@ public class AdminCompaniesApiServlet extends HttpServlet {
         } catch (Exception e) {
             logger.error("Failed to fetch companies", e);
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write("{\"error\": \"Internal server error\"}");
         }
     }
 
