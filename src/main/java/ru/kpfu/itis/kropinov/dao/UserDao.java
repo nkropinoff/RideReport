@@ -9,4 +9,5 @@ public interface UserDao {
     User save(User user);
     Optional<User> findByEmail(String email);
     User saveWithConnection(User user, Connection connection);
+    void deleteByIdWithConnection(int id, Connection connection);
 }

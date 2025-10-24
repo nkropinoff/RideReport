@@ -87,4 +87,23 @@ public class UserDaoImpl implements UserDao {
             throw new DataAccessException("Error while finding user by email: " + email, e);
         }
     }
+
+
+    @Override
+    public void deleteByIdWithConnection(int id, Connection connection) {
+        String sql = "DELETE FROM users WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+
+            int result = stmt.executeUpdate();
+            if (result == 0) {
+                logger.warn("User with id {} was not deleted, executeUpdate returned 0.", id);
+                throw new DataAccessException("User was not deleted");
+            }
+
+        } catch (SQLException e) {
+            logger.error("Failed delete user with id {}", id);
+            throw new DataAccessException("Failed delete user with id " + id, e);
+        }
+    }
 }
