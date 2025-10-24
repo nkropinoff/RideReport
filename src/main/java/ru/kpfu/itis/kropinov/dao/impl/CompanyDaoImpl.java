@@ -183,4 +183,25 @@ public class CompanyDaoImpl implements CompanyDao {
             throw new DataAccessException("Could not obtain a database connection for count all companies", e);
         }
     }
+
+    @Override
+    public void setCompanyStatus(int companyId, VerifyStatus status) {
+        String sql = "UPDATE companies SET status = ?::verify_status WHERE id = ?";
+
+        try (Connection connection = ds.getConnection();
+        PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setString(1, status.name());
+            stmt.setInt(2, companyId);
+
+            int result = stmt.executeUpdate();
+            if (result == 0) {
+                logger.error("Company with id {} status was not updated, executeUpdate returned 0", companyId);
+                throw new DataAccessException("Company status was not updated");
+            }
+        } catch (SQLException e) {
+            logger.error("Company with id {} status was not updated", companyId, e);
+            throw new DataAccessException("Company status was not updated", e);
+        }
+    }
 }

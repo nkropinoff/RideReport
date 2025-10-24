@@ -17,5 +17,6 @@ public interface CompanyDao {
     List<Company> findAllWithConnection(CompanySortingDto dto, Connection connection);
     int countAll(VerifyStatus status);
     int countAllWithConnection(VerifyStatus status, Connection connection);
+    void setCompanyStatus(int companyId, VerifyStatus status);
 
 }
