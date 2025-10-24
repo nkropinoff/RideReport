@@ -97,6 +97,32 @@ public class CompanyDaoImpl implements CompanyDao {
     };
 
     @Override
+    public Optional<Company> findByIdWithConnection(int companyId, Connection connection) {
+        String sql = "select * from companies where id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, companyId);
+
+            Company company = null;
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    company = new Company(
+                            rs.getInt("id"),
+                            rs.getInt("user_id"),
+                            rs.getString("name"),
+                            rs.getString("inn"),
+                            VerifyStatus.valueOf(rs.getString("status"))
+
+                    );
+                }
+            }
+            return Optional.ofNullable(company);
+        } catch (SQLException e) {
+            logger.error("Error while finding company by id: {}", companyId, e);
+            throw new DataAccessException("Error while finding company by id: " + companyId, e);
+        }
+    }
+
+    @Override
     public List<Company> findAllWithConnection(CompanySortingDto dto, Connection connection) {
 
         StringBuilder sql = new StringBuilder("SELECT * FROM companies ");
