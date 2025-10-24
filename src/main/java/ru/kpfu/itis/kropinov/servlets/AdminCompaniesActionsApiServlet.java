@@ -76,6 +76,36 @@ public class AdminCompaniesActionsApiServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doDelete(req, resp);
+        try {
+            String path = req.getPathInfo();
+
+            if (path == null || path.equals("/")) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+
+            String[] parts = path.split("/");
+
+            if (parts.length < 2) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+
+            try {
+                int companyId = Integer.parseInt(parts[1]);
+                Result<Void> result = companyService.deleteCompany(companyId);
+
+                if (result.isSuccess()) {
+                    resp.setStatus(HttpServletResponse.SC_OK);
+                } else {
+                    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                }
+            } catch (NumberFormatException e) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            logger.error("Failed doDelete method", e);
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
     }
 }
