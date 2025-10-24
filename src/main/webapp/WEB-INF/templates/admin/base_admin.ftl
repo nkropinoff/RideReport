@@ -22,7 +22,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link<#if pageId?? && pageId == 'passengers'> active</#if>" href="${ctx}/admin/passengers">
-                                <i class="bi bi-people me-2"></i> Пользователи
+                                <i class="bi bi-people me-2"></i> Пассажиры
                             </a>
                         </li>
                         <li class="nav-item">
