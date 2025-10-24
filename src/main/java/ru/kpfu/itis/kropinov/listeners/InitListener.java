@@ -40,7 +40,7 @@ public class InitListener implements ServletContextListener {
 
         FileStorageService fileStorageService = new FileStorageServiceImpl();
         UserService userService = new UserServiceImpl(dataSource, fileStorageService, userDao, companyDao, companyDocumentDao);
-        CompanyService companyService = new CompanyServiceImpl(dataSource, companyDao);
+        CompanyService companyService = new CompanyServiceImpl(dataSource, companyDao, companyDocumentDao, userDao, fileStorageService);
 
         sce.getServletContext().setAttribute("userService", userService);
         sce.getServletContext().setAttribute("companyService", companyService);

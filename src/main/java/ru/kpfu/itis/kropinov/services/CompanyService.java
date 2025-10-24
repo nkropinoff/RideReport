@@ -9,4 +9,5 @@ public interface CompanyService {
     PaginatedResult<Company> getCompanies(CompanySortingDto dto);
     Result<Void> denyCompany(int companyId);
     Result<Void> approveCompany(int companyId);
+    Result<Void> deleteCompany(int companyId);
 }
