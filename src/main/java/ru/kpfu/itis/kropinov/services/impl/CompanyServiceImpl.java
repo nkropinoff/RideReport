@@ -5,7 +5,9 @@ import org.slf4j.LoggerFactory;
 import ru.kpfu.itis.kropinov.dao.CompanyDao;
 import ru.kpfu.itis.kropinov.dto.CompanySortingDto;
 import ru.kpfu.itis.kropinov.dto.PaginatedResult;
+import ru.kpfu.itis.kropinov.dto.Result;
 import ru.kpfu.itis.kropinov.entities.Company;
+import ru.kpfu.itis.kropinov.enums.VerifyStatus;
 import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
 import ru.kpfu.itis.kropinov.services.CompanyService;
 
@@ -36,5 +38,17 @@ public class CompanyServiceImpl implements CompanyService {
             logger.error("Failed to fetch companies", e);
             throw new DataAccessException("Failed to fetch companies", e);
         }
+    }
+
+    @Override
+    public Result<Void> denyCompany(int companyId) {
+        companyDao.setCompanyStatus(companyId, VerifyStatus.DENIED);
+        return Result.success();
+    }
+
+    @Override
+    public Result<Void> approveCompany(int companyId) {
+        companyDao.setCompanyStatus(companyId, VerifyStatus.APPROVED);
+        return Result.success();
     }
 }
