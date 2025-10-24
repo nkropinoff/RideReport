@@ -8,6 +8,8 @@ import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CompanyDocumentDaoImpl implements CompanyDocumentDao {
     private static final Logger logger = LoggerFactory.getLogger(UserDaoImpl.class);
@@ -57,6 +59,31 @@ public class CompanyDocumentDaoImpl implements CompanyDocumentDao {
         } catch (SQLException e) {
             logger.error("Error while saving company document with storageId {}", companyDocument.getStorageId(), e);
             throw new DataAccessException("Error while saving company document with storageId: " + companyDocument.getStorageId(), e);
+        }
+    }
+
+    @Override
+    public List<CompanyDocument> findByCompanyIdWithConnection(int companyId, Connection connection) {
+        String sql = "SELECT * FROM company_documents WHERE company_id = ?";
+        List<CompanyDocument> companyDocuments = new ArrayList<>();
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, companyId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    companyDocuments.add(new CompanyDocument(
+                            rs.getInt("id"),
+                            rs.getInt("company_id"),
+                            rs.getString("storage_id"),
+                            rs.getString("original_filename"),
+                            rs.getString("mime_type"),
+                            rs.getLong("size_bytes")));
+                }
+            }
+            return companyDocuments;
+        } catch (SQLException e) {
+            logger.error("Error fetching document of company with id: {}", companyId, e);
+            throw new DataAccessException("Error fetching document of company", e);
         }
     }
 }
