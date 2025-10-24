@@ -10,7 +10,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Set;
 
-@WebFilter("/*")
+@WebFilter(filterName = "authenticationFilter")
 public class AuthenticationFilter extends HttpFilter {
 
     private final Set<String> allowedPaths = Set.of("/", "/login", "/logout", "/register");
