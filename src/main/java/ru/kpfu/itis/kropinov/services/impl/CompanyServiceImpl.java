@@ -5,9 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.kpfu.itis.kropinov.dao.CompanyDao;
 import ru.kpfu.itis.kropinov.dao.CompanyDocumentDao;
 import ru.kpfu.itis.kropinov.dao.UserDao;
-import ru.kpfu.itis.kropinov.dto.CompanySortingDto;
-import ru.kpfu.itis.kropinov.dto.PaginatedResult;
-import ru.kpfu.itis.kropinov.dto.Result;
+import ru.kpfu.itis.kropinov.dto.*;
 import ru.kpfu.itis.kropinov.entities.Company;
 import ru.kpfu.itis.kropinov.entities.CompanyDocument;
 import ru.kpfu.itis.kropinov.enums.VerifyStatus;
@@ -18,6 +16,7 @@ import ru.kpfu.itis.kropinov.services.FileStorageService;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +29,8 @@ public class CompanyServiceImpl implements CompanyService {
     private final UserDao userDao;
     private final DataSource dataSource;
     private final FileStorageService fileStorageService;
+
+    private static final String DOWNLOAD_URL_PATTERN = "/admin/companies/download/%d";
 
     public CompanyServiceImpl(DataSource dataSource, CompanyDao companyDao, CompanyDocumentDao companyDocumentDao, UserDao userDao, FileStorageService fileStorageService) {
         this.dataSource = dataSource;
@@ -78,24 +79,18 @@ public class CompanyServiceImpl implements CompanyService {
 
                 Company company = companyOptional.get();
 
-                List<CompanyDocument> companyDocuments = companyDocumentDao.findByCompanyIdWithConnection(companyId, connection);
-                List<String> deletedStorageIds = new ArrayList<>();
+                List<CompanyDocument> companyDocumentsToDelete = companyDocumentDao.findByCompanyIdWithConnection(companyId, connection);
+                userDao.deleteByIdWithConnection(company.getUserId(), connection);
+                connection.commit();
 
-                for (CompanyDocument doc : companyDocuments) {
+                for (CompanyDocument doc : companyDocumentsToDelete) {
                     try {
-                        fileStorageService.deleteFile(doc.getStorageId());
-                        deletedStorageIds.add(doc.getStorageId());
+                        fileStorageService.deleteFile(doc.getPublicId(), doc.getMimeType());
                     } catch (Exception e) {
-                        logger.error("Failed to delete file: {}", doc.getStorageId());
-                        rollback(connection);
-                        rollbackDeletedFiles(deletedStorageIds);
-                        return Result.error("Failed delete company documents");
+                        logger.error("Failed to delete file: {}", doc.getPublicId(), e);
                     }
                 }
 
-                userDao.deleteByIdWithConnection(company.getUserId(), connection);
-
-                connection.commit();
                 return Result.success();
             } catch (SQLException | DataAccessException e) {
                 rollback(connection);
@@ -118,7 +113,82 @@ public class CompanyServiceImpl implements CompanyService {
         }
     }
 
-    private void rollbackDeletedFiles(List<String> deletedStorageIds) {
-        logger.error("Transaction rolled back. Files deleted but need restoration: {}", deletedStorageIds);
+    @Override
+    public Result<CompanyDetailsDto> getCompanyDetails(int companyId) {
+        try (Connection connection = dataSource.getConnection()) {
+            Optional<CompanyWithUserDto> companyWithUserDtoOptional = companyDao.findByIdWithUserWithConnection(companyId, connection);
+            if (companyWithUserDtoOptional.isEmpty()) {
+                logger.warn("Company with id: {} was not found", companyId);
+                return Result.error("Company was not found");
+            }
+
+            CompanyWithUserDto companyWithUserDto = companyWithUserDtoOptional.get();
+            List<CompanyDocument> companyDocuments = companyDocumentDao.findByCompanyIdWithConnection(companyId, connection);
+
+            List<CompanyDetailsDto.CompanyDocumentDto> companyDocumentDtos = companyDocuments.stream()
+                    .map(doc -> new CompanyDetailsDto.CompanyDocumentDto(
+                            doc.getOriginalFilename(),
+                            doc.getMimeType(),
+                            doc.getSizeBytes(),
+                            formatSizeBytes(doc.getSizeBytes()),
+                            buildDownloadUrl(doc.getId())))
+                    .toList();
+
+            return Result.success(new CompanyDetailsDto(
+                    companyWithUserDto.getUserEmail(),
+                    companyWithUserDto.getCompanyName(),
+                    companyWithUserDto.getInn(),
+                    companyWithUserDto.getStatus(),
+                    companyDocumentDtos
+            ));
+
+        } catch (SQLException e) {
+            logger.error("Could not obtain database connection", e);
+            throw new DataAccessException("Could not obtain database connection", e);
+        }
+    }
+
+    private String buildDownloadUrl(int documentId) {
+        return String.format(DOWNLOAD_URL_PATTERN, documentId);
+    }
+
+    private String formatSizeBytes(Long sizeBytes) {
+        if (sizeBytes == null || sizeBytes == 0) {
+            return "0 Б";
+        }
+
+        final String[] units = {"Б", "КБ", "МБ", "ГБ"};
+        int unitIndex = 0;
+        double size = sizeBytes.doubleValue();
+
+        while (size >= 1024 && unitIndex < units.length - 1) {
+            size /= 1024;
+            unitIndex++;
+        }
+
+        DecimalFormat df = new DecimalFormat("#.##");
+        return df.format(size) + " " + units[unitIndex];
+    }
+
+    @Override
+    public Result<FileDownloadDto> getFileForDownload(int documentId) {
+        try (Connection conn = dataSource.getConnection()) {
+            Optional<CompanyDocument> documentOptional = companyDocumentDao.findByIdWithConnection(documentId, conn);
+
+            if (documentOptional.isEmpty()) {
+                return Result.error("File not found");
+            }
+
+            CompanyDocument doc = documentOptional.get();
+
+            return Result.success(new FileDownloadDto(
+                    doc.getUrl(),
+                    doc.getOriginalFilename(),
+                    doc.getMimeType()
+            ));
+        } catch (SQLException e) {
+            logger.error("Failed to get file for download", e);
+            return Result.error("Failed to get file");
+        }
     }
 }
