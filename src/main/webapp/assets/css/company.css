@@ -1,0 +1,51 @@
+#companySidebar {
+    background-color: #fff;
+    border: 1px solid rgba(0,0,0,.07);
+    box-shadow: 0 8px 24px rgba(0,0,0,.05);
+}
+
+#companySidebar .nav-link {
+    font-weight: 500;
+    color: var(--rr-text-dark);
+    margin-bottom: 0.25rem;
+    padding: .6rem .8rem;
+    border-radius: .5rem;
+    transition: all .2s ease;
+    font-size: 0.95rem;
+}
+
+#companySidebar .nav-link .bi {
+    font-size: 1rem;
+}
+
+#companySidebar .nav-link:hover {
+    color: var(--rr-primary-600);
+    background-color: rgba(37, 99, 235, .07);
+    transform: translateX(4px);
+}
+
+#companySidebar .nav-link.active {
+    color: #fff;
+    background: linear-gradient(135deg, var(--rr-primary-start), var(--rr-primary-end));
+    box-shadow: 0 4px 15px rgba(37, 99, 235, .3);
+    transform: translateX(0);
+}
+
+#companyContentCard {
+    background-color: #fff;
+    border: 1px solid rgba(0,0,0,.07);
+    box-shadow: 0 8px 24px rgba(0,0,0,.05);
+}
+
+.statistics-placeholder {
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 991.98px) {
+    #companySidebar {
+        margin-bottom: 1.5rem;
+    }
+}
