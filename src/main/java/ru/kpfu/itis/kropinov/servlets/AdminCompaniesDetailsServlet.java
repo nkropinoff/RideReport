@@ -26,36 +26,36 @@ public class AdminCompaniesDetailsServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try {
-            String path = req.getPathInfo();
-            if (path == null || path.equals("/")) {
-                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Company ID is required");
-                return;
-            }
-
-            String[] parts = path.split("/");
-
-            int companyId;
-            try {
-                companyId = Integer.parseInt(parts[1]);
-            } catch (NumberFormatException e) {
-                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid company ID format");
-                return;
-            }
-
-            Result<CompanyDetailsDto> result = companyService.getCompanyDetails(companyId);
-            if (!result.isSuccess()) {
-                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                return;
-            }
-            req.setAttribute("pageTitle", "Информация о компании");
-            req.setAttribute("company", result.getData());
-
-            req.getRequestDispatcher("../company_details.ftl").forward(req, resp);
-
-        } catch (Exception e) {
-            logger.error("Failed doGet method", e);
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        String path = req.getPathInfo();
+        if (path == null || path.equals("/")) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
         }
+
+        String[] parts = path.split("/");
+
+        if (parts.length < 2) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        int companyId;
+        try {
+            companyId = Integer.parseInt(parts[1]);
+        } catch (NumberFormatException e) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        Result<CompanyDetailsDto> result = companyService.getCompanyDetails(companyId);
+        if (!result.isSuccess()) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        req.setAttribute("pageTitle", "Информация о компании");
+        req.setAttribute("company", result.getData());
+
+        req.getRequestDispatcher("../company_details.ftl").forward(req, resp);
     }
 }

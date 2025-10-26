@@ -12,6 +12,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
+
+import static org.apache.commons.lang3.StringEscapeUtils.escapeJson;
 
 @WebServlet("/api/admin/companies/*")
 public class AdminCompaniesActionsApiServlet extends HttpServlet {
@@ -29,83 +32,96 @@ public class AdminCompaniesActionsApiServlet extends HttpServlet {
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String path = req.getPathInfo();
+
+        if (path == null || path.equals("/")) {
+            sendJsonError(resp, HttpServletResponse.SC_BAD_REQUEST, "Invalid request path");
+            return;
+        }
+
+        String parts[] = path.split("/");
+        if (path.length() < 3) {
+            sendJsonError(resp, HttpServletResponse.SC_BAD_REQUEST, "Missing action or company ID");
+            return;
+        }
+
+        int companyId;
         try {
-            String path = req.getPathInfo();
+            companyId = Integer.parseInt(parts[1]);
+        } catch (NumberFormatException e) {
+            sendJsonError(resp, HttpServletResponse.SC_BAD_REQUEST, "Invalid company ID");
+            return;
+        }
 
-            if (path == null || path.equals("/")) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                return;
-            }
+        String action = parts[2];
 
-            String parts[] = path.split("/");
-            if (path.length() < 3) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                return;
-            }
+        Result<Void> result;
+        if (DENY.equals(action)) {
+            result = companyService.denyCompany(companyId);
+        } else if (APPROVE.equals(action)) {
+            result = companyService.approveCompany(companyId);
+        } else {
+            sendJsonError(resp, HttpServletResponse.SC_BAD_REQUEST, "Unknown action: " + action);
+            return;
+        }
 
-            int companyId;
-            try {
-                companyId = Integer.parseInt(parts[1]);
-            } catch (NumberFormatException e) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                return;
-            }
-
-            String action = parts[2];
-
-            Result<Void> result;
-            if (DENY.equals(action)) {
-                result = companyService.denyCompany(companyId);
-            } else if (APPROVE.equals(action)) {
-                result = companyService.approveCompany(companyId);
-            } else {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                return;
-            }
-
-            if (result.isSuccess()) {
-                resp.setStatus(HttpServletResponse.SC_OK);
-            } else {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            }
-        } catch (Exception e) {
-            logger.error("Failed doGet method", e);
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        if (result.isSuccess()) {
+            resp.setStatus(HttpServletResponse.SC_OK);
+        } else {
+            sendJsonError(resp, HttpServletResponse.SC_NOT_FOUND, result.getErrorMessage());
         }
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try {
-            String path = req.getPathInfo();
+        String path = req.getPathInfo();
 
-            if (path == null || path.equals("/")) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                return;
-            }
-
-            String[] parts = path.split("/");
-
-            if (parts.length < 2) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                return;
-            }
-
-            try {
-                int companyId = Integer.parseInt(parts[1]);
-                Result<Void> result = companyService.deleteCompany(companyId);
-
-                if (result.isSuccess()) {
-                    resp.setStatus(HttpServletResponse.SC_OK);
-                } else {
-                    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                }
-            } catch (NumberFormatException e) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            }
-        } catch (Exception e) {
-            logger.error("Failed doDelete method", e);
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        if (path == null || path.equals("/")) {
+            sendJsonError(resp, HttpServletResponse.SC_BAD_REQUEST, "Company ID required");
+            return;
         }
+
+        String[] parts = path.split("/");
+
+        if (parts.length < 2) {
+            sendJsonError(resp, HttpServletResponse.SC_BAD_REQUEST, "Invalid path format");
+            return;
+        }
+
+        int companyId;
+        try {
+            companyId = Integer.parseInt(parts[1]);
+        } catch (NumberFormatException e) {
+            sendJsonError(resp, HttpServletResponse.SC_BAD_REQUEST, "Invalid company ID");
+            return;
+        }
+
+        Result<Void> result = companyService.deleteCompany(companyId);
+        if (result.isSuccess()) {
+            resp.setStatus(HttpServletResponse.SC_OK);
+        } else {
+            sendJsonError(resp, HttpServletResponse.SC_NOT_FOUND, result.getErrorMessage());
+        }
+    }
+
+    private void sendJsonError(HttpServletResponse resp, int status, String message) throws IOException {
+        resp.setStatus(status);
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+
+        PrintWriter writer = resp.getWriter();
+        writer.write("{\"error\":\"" + escapeJson(message) + "\"}");
+        writer.flush();
+    }
+
+    private String escapeJson(String text) {
+        if (text == null) {
+            return "";
+        }
+        return text.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 }

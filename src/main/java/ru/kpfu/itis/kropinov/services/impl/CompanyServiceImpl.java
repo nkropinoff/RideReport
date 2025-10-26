@@ -55,14 +55,26 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public Result<Void> denyCompany(int companyId) {
-        companyDao.setCompanyStatus(companyId, VerifyStatus.DENIED);
-        return Result.success();
+        try {
+            companyDao.setCompanyStatus(companyId, VerifyStatus.DENIED);
+            return Result.success();
+        } catch (DataAccessException e) {
+            logger.error("Failed to deny company {}", companyId, e);
+            throw e;
+        }
+
     }
 
     @Override
     public Result<Void> approveCompany(int companyId) {
-        companyDao.setCompanyStatus(companyId, VerifyStatus.APPROVED);
-        return Result.success();
+        try {
+            companyDao.setCompanyStatus(companyId, VerifyStatus.APPROVED);
+            return Result.success();
+        } catch (DataAccessException e) {
+            logger.error("Failed to approve company {}", companyId, e);
+            throw e;
+        }
+
     }
 
     @Override
