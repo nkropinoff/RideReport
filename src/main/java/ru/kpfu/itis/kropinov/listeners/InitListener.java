@@ -1,6 +1,8 @@
 package ru.kpfu.itis.kropinov.listeners;
 
+import com.cloudinary.Cloudinary;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ru.kpfu.itis.kropinov.config.CloudinaryConfig;
 import ru.kpfu.itis.kropinov.dao.CompanyDao;
 import ru.kpfu.itis.kropinov.dao.CompanyDocumentDao;
 import ru.kpfu.itis.kropinov.dao.UserDao;
@@ -34,11 +36,14 @@ public class InitListener implements ServletContextListener {
         );
         DataSource dataSource = new CustomDataSource(connectionPool);
 
+        Properties cloudinaryProperties = PropertiesUtil.getProperties("cloudinary.properties");
+        Cloudinary cloudinary = CloudinaryConfig.createCloudinary(cloudinaryProperties);
+
         CompanyDao companyDao = new CompanyDaoImpl(dataSource);
         CompanyDocumentDao companyDocumentDao = new CompanyDocumentDaoImpl(dataSource);
         UserDao userDao = new UserDaoImpl(dataSource);
 
-        FileStorageService fileStorageService = new FileStorageServiceImpl();
+        FileStorageService fileStorageService = new FileStorageServiceImpl(cloudinary);
         UserService userService = new UserServiceImpl(dataSource, fileStorageService, userDao, companyDao, companyDocumentDao);
         CompanyService companyService = new CompanyServiceImpl(dataSource, companyDao, companyDocumentDao, userDao, fileStorageService);
 
