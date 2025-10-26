@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.kpfu.itis.kropinov.dao.CompanyDao;
 import ru.kpfu.itis.kropinov.dto.CompanySortingDto;
+import ru.kpfu.itis.kropinov.dto.CompanyWithUserDto;
 import ru.kpfu.itis.kropinov.dto.Result;
 import ru.kpfu.itis.kropinov.entities.Company;
 import ru.kpfu.itis.kropinov.enums.VerifyStatus;
@@ -228,6 +229,32 @@ public class CompanyDaoImpl implements CompanyDao {
         } catch (SQLException e) {
             logger.error("Company with id {} status was not updated", companyId, e);
             throw new DataAccessException("Company status was not updated", e);
+        }
+    }
+
+    @Override
+    public Optional<CompanyWithUserDto> findByIdWithUserWithConnection(int companyId, Connection connection) {
+        String sql = "SELECT c.id, c.name, c.inn, c.status, u.email AS user_email FROM companies c INNER JOIN users u ON u.id = c.user_id WHERE c.id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, companyId);
+
+            CompanyWithUserDto companyWithUserDto = null;
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    companyWithUserDto = new CompanyWithUserDto(
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getString("inn"),
+                            VerifyStatus.valueOf(rs.getString("status")),
+                            rs.getString("user_email")
+                    );
+                }
+            }
+            return Optional.ofNullable(companyWithUserDto);
+        } catch (SQLException e) {
+            logger.error("Error while finding companyWithUser by id: {}", companyId, e);
+            throw new DataAccessException("Error while finding companyWithUser by id: " + companyId, e);
         }
     }
 }

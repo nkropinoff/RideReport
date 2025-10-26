@@ -1,6 +1,7 @@
 package ru.kpfu.itis.kropinov.dao;
 
 import ru.kpfu.itis.kropinov.dto.CompanySortingDto;
+import ru.kpfu.itis.kropinov.dto.CompanyWithUserDto;
 import ru.kpfu.itis.kropinov.entities.Company;
 import ru.kpfu.itis.kropinov.enums.VerifyStatus;
 
@@ -18,5 +19,5 @@ public interface CompanyDao {
     int countAll(VerifyStatus status);
     int countAllWithConnection(VerifyStatus status, Connection connection);
     void setCompanyStatus(int companyId, VerifyStatus status);
-
+    Optional<CompanyWithUserDto> findByIdWithUserWithConnection(int companyId, Connection connection);
 }
