@@ -95,7 +95,7 @@ $(document).ready(function () {
                 const companyId = parseInt(company.id);
 
                 let actionButtons = `
-                   <a href="${ctx}/admin/company/${companyId}" 
+                   <a href="${ctx}/admin/companies/${companyId}" 
                        class="btn btn-sm btn-outline-primary me-1" 
                        title="Просмотр">
                         <i class="bi bi-eye"></i>
@@ -130,7 +130,7 @@ $(document).ready(function () {
 
                 return `
                     <tr>
-                        <td><a href="${ctx}/admin/company/${companyId}" class="fw-semibold text-decoration-none" title="${safeCompanyName}">${safeCompanyName}</a></td>
+                        <td><a href="${ctx}/admin/companies/${companyId}" class="fw-semibold text-decoration-none" title="${safeCompanyName}">${safeCompanyName}</a></td>
                         <td>${safeInn}</td>
                         <td>${statusBadge}</td>
                         <td class="text-nowrap">${actionButtons}</td>
