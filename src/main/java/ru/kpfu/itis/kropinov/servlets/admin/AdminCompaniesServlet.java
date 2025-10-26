@@ -1,4 +1,4 @@
-package ru.kpfu.itis.kropinov.servlets;
+package ru.kpfu.itis.kropinov.servlets.admin;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;

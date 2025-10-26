@@ -1,4 +1,4 @@
-package ru.kpfu.itis.kropinov.servlets;
+package ru.kpfu.itis.kropinov.servlets.admin;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,6 +14,6 @@ public class AdminDashboardServlet extends HttpServlet {
         req.setAttribute("pageTitle", "Панель управления");
         req.setAttribute("sectionTitle", "Обзор");
         req.setAttribute("pageId", "overview");
-        req.getRequestDispatcher("dashboard.ftl").forward(req, resp);
+        req.getRequestDispatcher("dashboard_admin.ftl").forward(req, resp);
     }
 }
