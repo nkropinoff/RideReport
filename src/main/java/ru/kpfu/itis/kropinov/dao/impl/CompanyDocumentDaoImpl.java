@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CompanyDocumentDaoImpl implements CompanyDocumentDao {
     private static final Logger logger = LoggerFactory.getLogger(UserDaoImpl.class);
@@ -29,20 +30,21 @@ public class CompanyDocumentDaoImpl implements CompanyDocumentDao {
 
     @Override
     public CompanyDocument saveWithConnection(CompanyDocument companyDocument, Connection connection) {
-        String sql = "insert into company_documents (company_id, storage_id, original_filename, mime_type, size_bytes) values (?, ?, ?, ?, ?)";
+        String sql = "insert into company_documents (company_id, url, public_id, original_filename, mime_type, size_bytes) values (?, ?, ?, ?, ?, ?)";
 
         try {
             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             stmt.setInt(1, companyDocument.getCompanyId());
-            stmt.setString(2, companyDocument.getStorageId());
-            stmt.setString(3, companyDocument.getOriginalFileName());
-            stmt.setString(4, companyDocument.getMimeType());
-            stmt.setLong(5, companyDocument.getSizeBytes());
+            stmt.setString(2, companyDocument.getUrl());
+            stmt.setString(3, companyDocument.getPublicId());
+            stmt.setString(4, companyDocument.getOriginalFilename());
+            stmt.setString(5, companyDocument.getMimeType());
+            stmt.setLong(6, companyDocument.getSizeBytes());
 
             int result = stmt.executeUpdate();
             if (result == 0) {
-                logger.error("Company document with storageId {} was not saved, executeUpdate returned 0", companyDocument.getStorageId());
+                logger.error("Company document with publicId {} was not saved, executeUpdate returned 0", companyDocument.getPublicId());
                 throw new DataAccessException("Company document was not saved");
             }
 
@@ -57,8 +59,8 @@ public class CompanyDocumentDaoImpl implements CompanyDocumentDao {
 
             return companyDocument;
         } catch (SQLException e) {
-            logger.error("Error while saving company document with storageId {}", companyDocument.getStorageId(), e);
-            throw new DataAccessException("Error while saving company document with storageId: " + companyDocument.getStorageId(), e);
+            logger.error("Error while saving company document with publicId {}", companyDocument.getPublicId(), e);
+            throw new DataAccessException("Error while saving company document with publicId: " + companyDocument.getPublicId(), e);
         }
     }
 
@@ -74,7 +76,8 @@ public class CompanyDocumentDaoImpl implements CompanyDocumentDao {
                     companyDocuments.add(new CompanyDocument(
                             rs.getInt("id"),
                             rs.getInt("company_id"),
-                            rs.getString("storage_id"),
+                            rs.getString("url"),
+                            rs.getString("public_id"),
                             rs.getString("original_filename"),
                             rs.getString("mime_type"),
                             rs.getLong("size_bytes")));
@@ -84,6 +87,33 @@ public class CompanyDocumentDaoImpl implements CompanyDocumentDao {
         } catch (SQLException e) {
             logger.error("Error fetching document of company with id: {}", companyId, e);
             throw new DataAccessException("Error fetching document of company", e);
+        }
+    }
+
+    @Override
+    public Optional<CompanyDocument> findByIdWithConnection(int id, Connection connection) {
+        String sql = "SELECT * FROM company_documents WHERE id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(new CompanyDocument(
+                            rs.getInt("id"),
+                            rs.getInt("company_id"),
+                            rs.getString("url"),
+                            rs.getString("public_id"),
+                            rs.getString("original_filename"),
+                            rs.getString("mime_type"),
+                            rs.getLong("size_bytes")
+                    ));
+                }
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            logger.error("Failed to find document by id: {}", id, e);
+            throw new DataAccessException("Failed to find document", e);
         }
     }
 }
