@@ -10,7 +10,6 @@ import ru.kpfu.itis.kropinov.entities.Company;
 import ru.kpfu.itis.kropinov.entities.CompanyDocument;
 import ru.kpfu.itis.kropinov.entities.User;
 import ru.kpfu.itis.kropinov.enums.Role;
-import ru.kpfu.itis.kropinov.enums.VerifyStatus;
 import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
 import ru.kpfu.itis.kropinov.services.FileStorageService;
 import ru.kpfu.itis.kropinov.services.UserService;
@@ -82,8 +81,7 @@ public class UserServiceImpl implements UserService {
         }
 
 
-        List<String> savedStorageIDs = new ArrayList<>();
-
+        List<CloudinaryUploadResult> uploadedFiles = new ArrayList<>();
         try (Connection connection = dataSource.getConnection()) {
             try {
                 connection.setAutoCommit(false);
@@ -93,13 +91,21 @@ public class UserServiceImpl implements UserService {
                 User savedUser = userDao.saveWithConnection(companyUser, connection);
 
                 Company company = new Company(savedUser.getId(), companyName, inn);
-                companyDao.saveWithConnection(company, connection);
+                Company savedCompany = companyDao.saveWithConnection(company, connection);
 
+                String folder = formatCompanyFolder(savedCompany.getId());
                 for (Part part : companyDocuments) {
-                   String storageID = fileStorageService.saveFile(part.getInputStream(), part.getSubmittedFileName(), part.getContentType());
-                   savedStorageIDs.add(storageID);
+                    CloudinaryUploadResult uploadResult = fileStorageService.saveFile(part.getInputStream(), part.getSubmittedFileName(), part.getContentType(), folder);
+                    uploadedFiles.add(uploadResult);
 
-                    CompanyDocument document = new CompanyDocument(company.getId(), storageID, part.getSubmittedFileName(), part.getContentType(), part.getSize());
+                    CompanyDocument document = new CompanyDocument(
+                            savedCompany.getId(),
+                            uploadResult.getUrl(),
+                            uploadResult.getPublicId(),
+                            part.getSubmittedFileName(),
+                            uploadResult.getMimeType(),
+                            part.getSize()
+                    );
                     companyDocumentDao.saveWithConnection(document, connection);
                 }
 
@@ -107,7 +113,7 @@ public class UserServiceImpl implements UserService {
                 return Result.success();
             } catch (SQLException | IOException | DataAccessException e) {
                 rollback(connection);
-                rollbackSavedFiles(savedStorageIDs);
+                rollbackSavedFiles(uploadedFiles);
                 logger.error("Failed during company registration transaction.", e);
                 throw new DataAccessException("Failed during company registration transaction.", e);
             }
@@ -117,12 +123,15 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void rollbackSavedFiles(List<String> savedStorageIDs) {
-        for (String storageId : savedStorageIDs) {
-            fileStorageService.deleteFile(storageId);
-        }
+    private String formatCompanyFolder(Integer id) {
+        return "company-" + id;
     }
 
+    private void rollbackSavedFiles(List<CloudinaryUploadResult> uploadedFiles) {
+        for (CloudinaryUploadResult uploadedFile : uploadedFiles) {
+            fileStorageService.deleteFile(uploadedFile.getPublicId(), uploadedFile.getMimeType());
+        }
+    }
 
     @Override
     public Result<UserSessionDto> login(UserLoginDto dto) {
@@ -223,8 +232,8 @@ public class UserServiceImpl implements UserService {
             if (filePart == null || filePart.getSize() == 0) return Result.error("Обнаружен пустой файл.");
             if (filePart.getSize() > maxFileSize) return Result.error(String.format("Файл '%s' превышает размер 10МБ", filePart.getSubmittedFileName()));
 
-            String contentType = filePart.getContentType();
-            if (!contentType.equals("application/pdf") && !contentType.startsWith("image/")) {
+            String mimeType = filePart.getContentType();
+            if (!mimeType.equals("application/pdf") && !mimeType.startsWith("image/")) {
                 return Result.error(String.format("Недопустимый формат файла '%s'. Разрешены PDF или изображения.", filePart.getSubmittedFileName()));
             }
         }
