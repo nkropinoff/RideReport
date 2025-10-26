@@ -16,7 +16,7 @@ import java.util.List;
 
 public class CityDaoImpl implements CityDao {
 
-    private static final Logger logger = LoggerFactory.getLogger(CityDao.class);
+    private static final Logger logger = LoggerFactory.getLogger(CityDaoImpl.class);
     private final DataSource ds;
 
     public CityDaoImpl(DataSource ds) {
