@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.kpfu.itis.kropinov.dao.CityDao;
 import ru.kpfu.itis.kropinov.dao.TransportModeDao;
+import ru.kpfu.itis.kropinov.dao.VehicleDao;
 import ru.kpfu.itis.kropinov.entities.City;
 import ru.kpfu.itis.kropinov.entities.TransportMode;
 import ru.kpfu.itis.kropinov.services.RouteService;
@@ -15,10 +16,12 @@ public class RouteServiceImpl implements RouteService {
 
     private final CityDao cityDao;
     private final TransportModeDao transportModeDao;
+    private final VehicleDao vehicleDao;
 
-    public RouteServiceImpl(CityDao cityDao, TransportModeDao transportModeDao) {
+    public RouteServiceImpl(CityDao cityDao, TransportModeDao transportModeDao, VehicleDao vehicleDao) {
         this.cityDao = cityDao;
         this.transportModeDao = transportModeDao;
+        this.vehicleDao = vehicleDao;
     }
 
     public List<City> getAllCities() {
@@ -29,5 +32,8 @@ public class RouteServiceImpl implements RouteService {
         return transportModeDao.findAll();
     }
 
-
+    @Override
+    public boolean isVehicleNumberExists(String vehicleNumber) {
+        return vehicleDao.existsByVehicleNumber(vehicleNumber);
+    }
 }

@@ -8,4 +8,5 @@ import java.util.List;
 public interface RouteService {
     List<City> getAllCities();
     List<TransportMode> getAllTransportModes();
+    boolean isVehicleNumberExists(String vehicleNumber);
 }
