@@ -1,0 +1,176 @@
+.details-card {
+    background-color: #fff;
+    border: 1px solid rgba(0,0,0,.07);
+    box-shadow: 0 8px 24px rgba(0,0,0,.05);
+}
+
+.form-label {
+    font-weight: 500;
+    color: var(--rr-text-dark);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-select, .form-control {
+    border-radius: 0.5rem;
+    border: 1px solid rgba(0,0,0,.15);
+    padding: 0.6rem 0.75rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    transition: border-color .15s ease, box-shadow .15s ease;
+    height: calc(2.4rem + 2px);
+}
+
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%232563eb' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 2.5rem;
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+}
+
+.form-select:focus, .form-control:focus {
+    border-color: var(--rr-primary-600);
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, .1);
+}
+
+.form-select option {
+    padding: 0.6rem 0.75rem;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    background-color: #fff;
+    color: var(--rr-text-dark);
+}
+
+.form-select option:checked {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(14, 165, 233, 0.1));
+    color: var(--rr-primary-600);
+    font-weight: 500;
+}
+
+.vehicle-section {
+    border-top: 1px solid rgba(0,0,0,.1);
+}
+
+.error-message {
+    min-height: 20px;
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.vehicles-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    min-height: 2rem;
+}
+
+.vehicle-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.08), rgba(14, 165, 233, 0.08));
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 2rem;
+    transition: all 0.2s ease;
+}
+
+.vehicle-item:hover {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(14, 165, 233, 0.12));
+    border-color: rgba(37, 99, 235, 0.35);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+}
+
+.vehicle-number {
+    font-weight: 500;
+    color: var(--rr-primary-600);
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+.remove-vehicle-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 0;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+}
+
+.remove-vehicle-btn:hover {
+    background-color: rgba(220, 53, 69, 0.15);
+    transform: scale(1.15);
+}
+
+.invalid-feedback {
+    font-size: 0.875rem;
+}
+
+.btn-cta {
+    height: calc(2.4rem + 2px);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-cta:disabled,
+.btn-cta.disabled {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.4), rgba(14, 165, 233, 0.4));
+    color: rgba(255, 255, 255, 0.7);
+    cursor: not-allowed;
+    filter: none;
+    opacity: 0.65;
+}
+
+.btn-cta:disabled:hover,
+.btn-cta.disabled:hover {
+    filter: none;
+    transform: none;
+}
+
+#formAlert {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 767.98px) {
+    .form-label {
+        font-size: 0.85rem;
+    }
+
+    .form-select, .form-control {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.65rem;
+    }
+
+    .vehicle-item {
+        font-size: 0.85rem;
+        padding: 0.35rem 0.65rem;
+    }
+}
