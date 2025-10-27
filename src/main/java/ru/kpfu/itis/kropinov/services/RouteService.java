@@ -9,4 +9,5 @@ public interface RouteService {
     List<City> getAllCities();
     List<TransportMode> getAllTransportModes();
     boolean isVehicleNumberExists(String vehicleNumber);
+    boolean routeNumberIsExists(int companyId, int cityId, String routeNumber);
 }
