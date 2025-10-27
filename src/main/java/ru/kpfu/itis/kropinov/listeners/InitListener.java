@@ -45,7 +45,7 @@ public class InitListener implements ServletContextListener {
         VehicleDao vehicleDao = new VehicleDaoImpl(dataSource);
         RouteDao routeDao = new RouteDaoImpl(dataSource);
 
-        RouteService routeService = new RouteServiceImpl(cityDao, transportModeDao, vehicleDao, routeDao);
+        RouteService routeService = new RouteServiceImpl(dataSource, cityDao, transportModeDao, vehicleDao, routeDao);
         FileStorageService fileStorageService = new FileStorageServiceImpl(cloudinary);
         UserService userService = new UserServiceImpl(dataSource, fileStorageService, userDao, companyDao, companyDocumentDao);
         CompanyService companyService = new CompanyServiceImpl(dataSource, companyDao, companyDocumentDao, userDao, fileStorageService);
