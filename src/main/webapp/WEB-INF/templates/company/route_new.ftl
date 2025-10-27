@@ -28,6 +28,15 @@
                         <p class="text-muted mb-0 small">Заполните информацию о маршруте</p>
                     </div>
 
+                    <#if error?has_content>
+                        <div class="alert alert-light border-0 rounded-3 mb-4" role="alert">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-exclamation-circle me-3 fs-5 mt-1"></i>
+                                <div class="flex-grow-1">${error}</div>
+                            </div>
+                        </div>
+                    </#if>
+
                     <form id="routeForm" method="POST" action="${ctx}/company/routes" class="needs-validation" novalidate>
 
                         <div class="row g-3 mb-4">
@@ -79,7 +88,7 @@
                                 </div>
                             </div>
 
-                            <div id="vehiclesList" class="vehicles-list"></div>
+                            <div id="vehiclesList" class="vehicles-list"  <#if vehiclesJson??>data-saved-vehicles='${vehiclesJson}'</#if>></div>
 
                             <div class="alert alert-light border-0 bg-light" id="noVehiclesMsg">
                                 <i class="bi bi-info-circle me-2"></i>

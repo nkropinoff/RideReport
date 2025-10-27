@@ -3,6 +3,12 @@ let vehicleNumbers = [];
 $(document).ready(function () {
     updateSubmitButton();
 
+    const savedVehiclesJson = $('#vehiclesList').data('saved-vehicles');
+    if (savedVehiclesJson) {
+        vehicleNumbers = savedVehiclesJson;
+        vehicleNumbers.forEach(num => addVehicleToList(num));
+    }
+
     $('#routeNumber').on('blur', function() {
         const routeNumber = $(this).val().trim();
         const cityId = $('#citySelect').val();
