@@ -6,9 +6,10 @@ $(document).ready(function () {
     $('#routeNumber').on('blur', function() {
         const routeNumber = $(this).val().trim();
         const cityId = $('#citySelect').val();
+        const transportModeId = $('#transportSelect').val();
 
-        if (routeNumber && cityId) {
-            checkRouteNumberExists(routeNumber, cityId);
+        if (routeNumber && cityId && transportModeId) {
+            checkRouteNumberExists(routeNumber, cityId, transportModeId);
         }
     });
 
@@ -16,9 +17,10 @@ $(document).ready(function () {
         $('#routeNumber').removeClass('is-invalid');
         const routeNumber = $('#routeNumber').val().trim();
         const cityId = $(this).val();
+        const transportModeId = $('#transportSelect').val();
 
-        if (routeNumber && cityId) {
-            checkRouteNumberExists(routeNumber, cityId);
+        if (routeNumber && cityId && transportModeId) {
+            checkRouteNumberExists(routeNumber, cityId, transportModeId);
         }
     });
 
@@ -64,20 +66,21 @@ $(document).ready(function () {
         });
     }
 
-    function checkRouteNumberExists(routeNumber, cityId) {
+    function checkRouteNumberExists(routeNumber, cityId, transportModeId) {
         $.ajax({
             url: ctx + '/company/routes/check-route-number',
             method: 'GET',
             data: {
                 routeNumber: routeNumber,
-                cityId: cityId
+                cityId: cityId,
+                transportModeId: transportModeId
             },
             dataType: 'json',
             success: function(response) {
                 const routeInput = $('#routeNumber');
                 if (response.exists) {
                     routeInput.addClass('is-invalid');
-                    routeInput.siblings('.invalid-feedback').text('Маршрут с таким номером уже существует в этом городе');
+                    routeInput.siblings('.invalid-feedback').text('Маршрут с таким номером для этого типа транспорта уже существует в этом городе');
                 } else {
                     routeInput.removeClass('is-invalid');
                 }

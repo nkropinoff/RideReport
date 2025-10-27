@@ -20,21 +20,21 @@ public class RouteDaoImpl implements RouteDao {
     }
 
     @Override
-    public boolean existsByCompanyIdAndCityIdAndRouteNumber(int companyId, int cityId, String routeNumber) {
-        String sql = "SELECT EXISTS(SELECT 1 FROM routes WHERE number = ? AND city_id = ? AND company_id = ?)";
+    public boolean existsByTransportModeIdAndCityIdAndRouteNumber(int transportModeId, int cityId, String routeNumber) {
+        String sql = "SELECT EXISTS(SELECT 1 FROM routes WHERE number = ? AND city_id = ? AND transport_mode_id = ?)";
 
         try (Connection connection = ds.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
 
             stmt.setString(1, routeNumber);
             stmt.setInt(2, cityId);
-            stmt.setInt(3, companyId);
+            stmt.setInt(3, transportModeId);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 return rs.next() && rs.getBoolean(1);
             }
         } catch (SQLException e) {
-            logger.error("Failed to check route number {} for city {} and companyId {}", routeNumber, cityId, companyId, e);
+            logger.error("Failed to check route number {} for city {} and transportModeId {}", routeNumber, cityId, transportModeId, e);
             throw new DataAccessException("Failed to check route number existence", e);
         }
     }

@@ -41,7 +41,7 @@ public class RouteServiceImpl implements RouteService {
     }
 
     @Override
-    public boolean routeNumberIsExists(int companyId, int cityId, String routeNumber) {
-        return routeDao.existsByCompanyIdAndCityIdAndRouteNumber(companyId, cityId, routeNumber);
+    public boolean routeNumberIsExists(int transportModeId, int cityId, String routeNumber) {
+        return routeDao.existsByTransportModeIdAndCityIdAndRouteNumber(transportModeId, cityId, routeNumber);
     }
 }

@@ -32,38 +32,28 @@ public class RouteNumberCheckServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-            return;
-        }
-
-        UserSessionDto user = (UserSessionDto) session.getAttribute("user");
-        if (user.getCompanyInfo().isEmpty()) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-            return;
-        }
-
-        int companyId = user.getCompanyInfo().get().getCompanyId();
-
         String routeNumber = req.getParameter("routeNumber");
         String cityIdStr = req.getParameter("cityId");
+        String transportModeIdStr = req.getParameter("transportModeId");
 
-        if (routeNumber == null || cityIdStr == null) {
+        if (routeNumber == null || cityIdStr == null || transportModeIdStr == null) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
         int cityId;
+        int transportModeId;
         try {
             cityId = Integer.parseInt(cityIdStr);
+            transportModeId = Integer.parseInt(transportModeIdStr);
         } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
+
         boolean isExists = false;
-        isExists = routeService.routeNumberIsExists(companyId, cityId, routeNumber);
+        isExists = routeService.routeNumberIsExists(transportModeId, cityId, routeNumber);
 
         resp.setContentType("application/json");
         Map<String, Boolean> responseData = Map.of("exists", isExists);
