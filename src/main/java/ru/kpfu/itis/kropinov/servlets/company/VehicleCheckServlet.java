@@ -35,6 +35,7 @@ public class VehicleCheckServlet extends HttpServlet {
             isExists = routeService.isVehicleNumberExists(vehicleNumber);
         }
 
+        resp.setContentType("application/json");
         Map<String,Boolean> responseData = Map.of("exists", isExists);
         mapper.writeValue(resp.getWriter(), responseData);
     }
