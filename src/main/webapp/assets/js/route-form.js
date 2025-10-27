@@ -3,6 +3,25 @@ let vehicleNumbers = [];
 $(document).ready(function () {
     updateSubmitButton();
 
+    $('#routeNumber').on('blur', function() {
+        const routeNumber = $(this).val().trim();
+        const cityId = $('#citySelect').val();
+
+        if (routeNumber && cityId) {
+            checkRouteNumberExists(routeNumber, cityId);
+        }
+    });
+
+    $('#citySelect').on('change', function() {
+        $('#routeNumber').removeClass('is-invalid');
+        const routeNumber = $('#routeNumber').val().trim();
+        const cityId = $(this).val();
+
+        if (routeNumber && cityId) {
+            checkRouteNumberExists(routeNumber, cityId);
+        }
+    });
+
     $('#addVehicleBtn').click( function () {
         const vehicleInput = $('#vehicleNumber');
         const vehicleNumber = vehicleInput.val().trim();
@@ -45,11 +64,36 @@ $(document).ready(function () {
         });
     }
 
+    function checkRouteNumberExists(routeNumber, cityId) {
+        $.ajax({
+            url: ctx + '/company/routes/check-route-number',
+            method: 'GET',
+            data: {
+                routeNumber: routeNumber,
+                cityId: cityId
+            },
+            dataType: 'json',
+            success: function(response) {
+                const routeInput = $('#routeNumber');
+                if (response.exists) {
+                    routeInput.addClass('is-invalid');
+                    routeInput.siblings('.invalid-feedback').text('Маршрут с таким номером уже существует в этом городе');
+                } else {
+                    routeInput.removeClass('is-invalid');
+                }
+            },
+            error: function () {
+                console.error('Ошибка проверки номера маршрута');
+            }
+        });
+    }
+
     function checkVehicleExists(vehicleNumber) {
         $.ajax({
             url: ctx + '/company/routes/check-vehicle',
             method: 'GET',
             data: { vehicleNumber: vehicleNumber },
+            dataType: 'json',
             success: function(response) {
                 if (response.exists) {
                     showError('Этот номер ТС уже используется в другом маршруте');
@@ -125,6 +169,11 @@ $(document).ready(function () {
         if (!form.checkValidity()) {
             e.stopPropagation();
             form.classList.add('was-validated');
+            return false;
+        }
+
+        if ($('#routeNumber').hasClass('is-invalid')) {
+            showFormAlert('Исправьте ошибки в форме');
             return false;
         }
 
