@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.kpfu.itis.kropinov.dao.CompanyDao;
 import ru.kpfu.itis.kropinov.dao.CompanyDocumentDao;
 import ru.kpfu.itis.kropinov.dao.UserDao;
+import ru.kpfu.itis.kropinov.db.CustomDataSource;
 import ru.kpfu.itis.kropinov.dto.*;
 import ru.kpfu.itis.kropinov.entities.Company;
 import ru.kpfu.itis.kropinov.entities.CompanyDocument;
@@ -112,7 +113,7 @@ public class UserServiceImpl implements UserService {
                 connection.commit();
                 return Result.success();
             } catch (SQLException | IOException | DataAccessException e) {
-                rollback(connection);
+                CustomDataSource.rollback(connection);
                 rollbackSavedFiles(uploadedFiles);
                 logger.error("Failed during company registration transaction.", e);
                 throw new DataAccessException("Failed during company registration transaction.", e);
@@ -189,16 +190,6 @@ public class UserServiceImpl implements UserService {
 
     private UserSessionDto createSessionDtoForCompany(User user, Company company) {
         return UserSessionDto.forCompany(user.getId(), user.getEmail(), company.getId(), company.getCompanyName(), company.getStatus());
-    }
-
-    private void rollback(Connection connection) {
-        if (connection != null) {
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                logger.error ("Cound not rollback connection", e);
-            }
-        }
     }
 
     private boolean isValidEmail(String email) {

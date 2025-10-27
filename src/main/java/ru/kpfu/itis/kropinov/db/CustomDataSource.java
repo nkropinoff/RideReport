@@ -1,13 +1,16 @@
 package ru.kpfu.itis.kropinov.db;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
-import java.util.logging.Logger;
 
 public class CustomDataSource implements DataSource {
+    private final static Logger logger = LoggerFactory.getLogger(CustomDataSource.class);
     private final CustomConnectionPool pool;
 
     public CustomDataSource(CustomConnectionPool pool) {
@@ -22,6 +25,16 @@ public class CustomDataSource implements DataSource {
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
         return pool.getConnection();
+    }
+
+    public static void rollback(Connection connection) {
+        if (connection != null) {
+            try {
+                connection.rollback();
+            } catch (SQLException e) {
+                logger.error ("Cound not rollback connection", e);
+            }
+        }
     }
 
     // Other methods of DataSource interface are unsupported

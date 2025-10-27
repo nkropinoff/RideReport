@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.kpfu.itis.kropinov.dao.CompanyDao;
 import ru.kpfu.itis.kropinov.dao.CompanyDocumentDao;
 import ru.kpfu.itis.kropinov.dao.UserDao;
+import ru.kpfu.itis.kropinov.db.CustomDataSource;
 import ru.kpfu.itis.kropinov.dto.*;
 import ru.kpfu.itis.kropinov.entities.Company;
 import ru.kpfu.itis.kropinov.entities.CompanyDocument;
@@ -105,23 +106,13 @@ public class CompanyServiceImpl implements CompanyService {
 
                 return Result.success();
             } catch (SQLException | DataAccessException e) {
-                rollback(connection);
+                CustomDataSource.rollback(connection);
                 logger.error("Failed to delete company {}", companyId, e);
                 throw new DataAccessException("Failed to delete company", e);
             }
         } catch (SQLException e) {
             logger.error("Could not obtain database connection", e);
             throw new DataAccessException("Could not obtain database connection", e);
-        }
-    }
-
-    private void rollback(Connection connection) {
-        if (connection != null) {
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                logger.error ("Cound not rollback connection", e);
-            }
         }
     }
 
