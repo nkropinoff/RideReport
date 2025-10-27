@@ -26,7 +26,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link<#if pageId?? && pageId == 'create-route'> active</#if>" href="${ctx}/company/routes/create">
+                            <a class="nav-link<#if pageId?? && pageId == 'create-route'> active</#if>" href="${ctx}/company/routes/new">
                                 <i class="bi bi-plus-circle me-2"></i> Создать маршрут
                             </a>
                         </li>
