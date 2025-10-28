@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.kpfu.itis.kropinov.exceptions.AccessDeniedException;
+import ru.kpfu.itis.kropinov.exceptions.BusinessException;
 import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
 
 import javax.servlet.ServletException;
@@ -73,13 +74,12 @@ public class ExceptionHandlerServlet extends HttpServlet {
     }
 
     private Integer getStatusCodeFromException(Throwable throwable) {
-        if (throwable instanceof AccessDeniedException) {
-            return 403;
-        } else if (throwable instanceof DataAccessException) {
-            return 500;
-        } else {
-            return 500;
-        }
+        return switch (throwable) {
+            case AccessDeniedException accessDeniedException -> 403;
+            case DataAccessException dataAccessException -> 500;
+            case BusinessException bussinessException -> 400;
+            case null, default -> 500;
+        };
     }
 
     private void handleApiError(HttpServletResponse resp, int statusCode, Throwable throwable) throws IOException {

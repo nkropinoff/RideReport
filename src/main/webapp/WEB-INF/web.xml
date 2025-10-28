@@ -60,6 +60,11 @@
     </error-page>
 
     <error-page>
+        <exception-type>ru.kpfu.itis.kropinov.exceptions.BusinessException</exception-type>
+        <location>/error-handler</location>
+    </error-page>
+
+    <error-page>
         <exception-type>ru.kpfu.itis.kropinov.exceptions.DataAccessException</exception-type>
         <location>/error-handler</location>
     </error-page>
