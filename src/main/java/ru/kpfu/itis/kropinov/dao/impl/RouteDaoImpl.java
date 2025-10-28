@@ -3,11 +3,16 @@ package ru.kpfu.itis.kropinov.dao.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.kpfu.itis.kropinov.dao.RouteDao;
+import ru.kpfu.itis.kropinov.dto.Result;
+import ru.kpfu.itis.kropinov.dto.RouteNumberDto;
 import ru.kpfu.itis.kropinov.entities.Route;
+import ru.kpfu.itis.kropinov.entities.Vehicle;
 import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RouteDaoImpl implements RouteDao {
     private DataSource ds;
@@ -83,6 +88,50 @@ public class RouteDaoImpl implements RouteDao {
         } catch (SQLException e) {
             logger.error("Failed saving vehicle: {} for route with id: {}", vehicle, routeId, e);
             throw new DataAccessException("Failed saving vehicle for route", e);
+        }
+    }
+
+    @Override
+    public List<RouteNumberDto> findRouteNumbersByCompanyCityAndTransportMode(int companyId, int cityId, int transportModeId) {
+        String sql = "SELECT id, number FROM routes WHERE company_id = ? AND city_id = ? AND transport_mode_id = ?";
+
+        List<RouteNumberDto> routeNumbers = new ArrayList<>();
+        try (Connection connection = ds.getConnection();
+        PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, companyId);
+            stmt.setInt(2, cityId);
+            stmt.setInt(3, transportModeId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    routeNumbers.add(new RouteNumberDto(
+                            rs.getInt("id"),
+                            rs.getString("number"))
+                    );
+                }
+            }
+            return routeNumbers;
+        } catch (SQLException e) {
+            logger.error("Failed fetch route numbers by company id: {}, city id: {}, transport mode id: {}", companyId, cityId, transportModeId, e);
+            throw new DataAccessException("Failed fetch route numbers by company id, city id, transport mode id", e);
+        }
+    }
+
+    @Override
+    public boolean isRouteOwnedByCompany(int routeId, int companyId) {
+        String sql = "SELECT EXISTS(SELECT 1 FROM routes WHERE id = ? AND company_id = ?)";
+
+        try (Connection connection = ds.getConnection();
+        PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, routeId);
+            stmt.setInt(2, companyId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() && rs.getBoolean(1);
+            }
+        } catch (SQLException e) {
+            logger.error("Failed check route id {} owning to company id {}", routeId, companyId, e);
+            throw new DataAccessException("Failed check route owning to company", e);
         }
     }
 }

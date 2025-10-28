@@ -3,10 +3,13 @@ package ru.kpfu.itis.kropinov.dao.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.kpfu.itis.kropinov.dao.VehicleDao;
+import ru.kpfu.itis.kropinov.entities.Vehicle;
 import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class VehicleDaoImpl implements VehicleDao {
     private final static Logger logger = LoggerFactory.getLogger(VehicleDaoImpl.class);
@@ -30,6 +33,29 @@ public class VehicleDaoImpl implements VehicleDao {
         } catch (SQLException e) {
             logger.error("Failed check existing vehicle number {}", vehicleNumber, e);
             throw new DataAccessException("Failed check existing vehicle number", e);
+        }
+    }
+
+    @Override
+    public List<Vehicle> findVehiclesByRouteId(int routeId) {
+        String sql = "SELECT vehicle_number FROM route_vehicles WHERE route_id = ?";
+        List<Vehicle> vehicles = new ArrayList<>();
+        try (Connection connection = ds.getConnection();
+        PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, routeId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    vehicles.add(new Vehicle(
+                            rs.getString("vehicle_number")
+                            )
+                    );
+                }
+            }
+            return vehicles;
+        } catch (SQLException e) {
+            logger.error("Failed to fetch vehicles by route id: {}", routeId, e);
+            throw new DataAccessException("Failed to fetch vehicles by route id", e);
         }
     }
 }
