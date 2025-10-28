@@ -50,7 +50,7 @@ public class AuthorizationFilter extends HttpFilter {
     private boolean checkAccess(UserSessionDto user, String path) {
         return switch(user.getRole()) {
             case ADMIN -> path.startsWith("/admin") || path.startsWith("/api/admin") || path.startsWith("/profile");
-            case COMPANY -> path.startsWith("/company") || path.startsWith("/profile");
+            case COMPANY -> path.startsWith("/company") || path.startsWith("/api/company") || path.startsWith("/profile");
             case PASSENGER -> path.startsWith("/review") || path.startsWith("/profile");
         };
     }
