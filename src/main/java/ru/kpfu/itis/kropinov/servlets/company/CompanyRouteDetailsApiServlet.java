@@ -1,5 +1,6 @@
 package ru.kpfu.itis.kropinov.servlets.company;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.kpfu.itis.kropinov.dto.UserSessionDto;
 import ru.kpfu.itis.kropinov.entities.Vehicle;
@@ -12,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @WebServlet("/api/company/routes/*")
 public class CompanyRouteDetailsApiServlet extends HttpServlet {
@@ -27,33 +30,81 @@ public class CompanyRouteDetailsApiServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String path = req.getPathInfo();
-        if (path == null || path.equals("/")) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        Optional<Integer> routeIdOptional = extractRouteIdFromPath(req, resp);
+        if (routeIdOptional.isEmpty()) {
             return;
+        }
+
+        int routeId = routeIdOptional.get();
+        int companyId = getCompanyId(req);
+        List<String> vehicles = routeService.getVehiclesByRouteId(routeId, companyId).stream().map(Vehicle::getNumber).toList();
+
+        Map<String, Object> result = Map.of("vehicles", vehicles);
+        resp.setContentType("application/json");
+        mapper.writeValue(resp.getWriter(), result);
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Optional<Integer> routeIdOptional = extractRouteIdFromPath(req, resp);
+        if (routeIdOptional.isEmpty()) {
+            return;
+        }
+
+        int routeId = routeIdOptional.get();
+        int companyId = getCompanyId(req);
+
+        List<String> vehicleNumbers = mapper.readValue(req.getReader(), new TypeReference<List<String>>() {});
+        List<Vehicle> vehicles = vehicleNumbers.stream().map(Vehicle::new).toList();
+
+        if (vehicles.isEmpty()) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        routeService.updateRouteVehicles(routeId, vehicles, companyId);
+        resp.setStatus(HttpServletResponse.SC_OK);
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Optional<Integer> routeIdOptional = extractRouteIdFromPath(req, resp);
+        if (routeIdOptional.isEmpty()) {
+            return;
+        }
+
+        int routeId = routeIdOptional.get();
+        int companyId = getCompanyId(req);
+
+        routeService.deleteRoute(routeId, companyId);
+        resp.setStatus(HttpServletResponse.SC_OK);
+    }
+
+    private int getCompanyId(HttpServletRequest req) {
+        return ((UserSessionDto) req.getSession(false).getAttribute("user")).getCompanyInfo().get().getCompanyId();
+    }
+
+    private Optional<Integer> extractRouteIdFromPath(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
+        String path = req.getPathInfo();
+
+        if (path == null || path.equals("/")) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return Optional.empty();
         }
 
         String[] parts = path.split("/");
-
         if (parts.length < 2) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return Optional.empty();
         }
 
-        int routeId;
         try {
-            routeId = Integer.parseInt(parts[1]);
+            int routeId = Integer.parseInt(parts[1]);
+            return Optional.of(routeId);
         } catch (NumberFormatException e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return Optional.empty();
         }
-
-        int companyId = ((UserSessionDto) req.getSession(false).getAttribute("user")).getCompanyInfo().get().getCompanyId();
-        List<Vehicle> vehicles = routeService.getVehiclesByRouteId(routeId, companyId);
-
-        resp.setContentType("application/json");
-        mapper.writeValue(resp.getWriter(), vehicles);
     }
-
-
 }
