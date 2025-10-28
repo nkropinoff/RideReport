@@ -42,13 +42,18 @@ $(document).ready(function () {
             return;
         }
 
+        if (originalVehicles.includes(vehicleNumber)) {
+            addVehicleToList(vehicleNumber);
+            return;
+        }
+
         const routeId = $('#routeId').val();
         checkVehicleExists(vehicleNumber, routeId);
     });
 
     $('#vehiclesList').on('click', '.remove-vehicle-btn', function() {
         const vehicleItem = $(this).closest('.vehicle-item');
-        const vehicleNumber = vehicleItem.data('vehicle');
+        const vehicleNumber = vehicleItem.attr('data-vehicle');
 
         vehicleNumbers = vehicleNumbers.filter(num => num !== vehicleNumber);
         vehicleItem.remove();
@@ -127,11 +132,13 @@ $(document).ready(function () {
             success: function(response) {
                 $('#routeId').val(routeId);
 
-                vehicleNumbers = response.vehicles || [];
-                originalVehicles = [...vehicleNumbers];
-
+                vehicleNumbers = [];
                 $('#vehiclesList').empty();
-                vehicleNumbers.forEach(num => addVehicleToList(num));
+
+                const loadedVehicles = response.vehicles || [];
+                originalVehicles = [...loadedVehicles];
+
+                loadedVehicles.forEach(num => addVehicleToList(num));
 
                 if (vehicleNumbers.length === 0) {
                     $('#noVehiclesMsg').show();
@@ -172,9 +179,11 @@ $(document).ready(function () {
     }
 
     function addVehicleToList(vehicleNumber) {
-        if (!vehicleNumbers.includes(vehicleNumber)) {
-            vehicleNumbers.push(vehicleNumber);
+        if (vehicleNumbers.includes(vehicleNumber)) {
+            return;
         }
+
+        vehicleNumbers.push(vehicleNumber);
 
         const vehicleItem = $(`
             <div class="vehicle-item" data-vehicle="${vehicleNumber}">
@@ -196,18 +205,14 @@ $(document).ready(function () {
 
     function saveRoute(routeId) {
         $.ajax({
-            url: ctx + '/company/routes/' + routeId,
-            method: 'POST',
-            data: {
-                vehicles: JSON.stringify(vehicleNumbers)
-            },
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    window.location.href = ctx + '/company/dashboard';
-                } else {
-                    showFormAlert(response.message || 'Ошибка сохранения');
-                }
+            url: ctx + '/api/company/routes/' + routeId,
+            method: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(vehicleNumbers),
+            success: function() {
+                showSuccessAlert('Маршрут успешно обновлен');
+                originalVehicles = [...vehicleNumbers];
+                updateSubmitButton();
             },
             error: function () {
                 showFormAlert('Ошибка при сохранении маршрута');
@@ -217,16 +222,10 @@ $(document).ready(function () {
 
     function deleteRoute(routeId) {
         $.ajax({
-            url: ctx + '/company/routes/' + routeId + '/delete',
-            method: 'POST',
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    window.location.href = ctx + '/company/dashboard';
-                } else {
-                    confirmModal.hide();
-                    showFormAlert(response.message || 'Ошибка удаления');
-                }
+            url: ctx + '/api/company/routes/' + routeId,
+            method: 'DELETE',
+            success: function() {
+                window.location.href = ctx + '/company/dashboard';
             },
             error: function () {
                 confirmModal.hide();
@@ -272,8 +271,22 @@ $(document).ready(function () {
     }
 
     function hideFormAlert() {
-        $('#formAlert').removeClass('show').fadeOut(300, function() {
+        $('#formAlert').removeClass('show').fadeOut(100, function() {
             $(this).css('display', 'none');
         });
+    }
+
+    function showSuccessAlert(message) {
+        $('#formAlertText').text(message);
+        $('#formAlert')
+            .removeClass('alert-warning')
+            .addClass('alert-success')
+            .css('display', 'block')
+            .addClass('show');
+
+        setTimeout(function() {
+            hideFormAlert();
+            $('#formAlert').removeClass('alert-success').addClass('alert-warning');
+        }, 3000);
     }
 });
