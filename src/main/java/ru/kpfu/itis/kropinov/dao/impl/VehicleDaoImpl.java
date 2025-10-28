@@ -58,4 +58,21 @@ public class VehicleDaoImpl implements VehicleDao {
             throw new DataAccessException("Failed to fetch vehicles by route id", e);
         }
     }
+
+    @Override
+    public void deleteVehicleNumberWithConnection(String vehicleNumber, Connection connection) {
+        String sql = "DELETE FROM route_vehicles WHERE vehicle_number = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, vehicleNumber);
+
+            int result = stmt.executeUpdate();
+            if (result == 0) {
+                logger.error("Failed deletion vehicle number: {}, executeUpdate returned 0", vehicleNumber);
+                throw new DataAccessException("Failed deletion vehicle number, executeUpdate returned 0");
+            }
+        } catch (SQLException e) {
+            logger.error("Failed deletion vehicle number: {}", vehicleNumber);
+            throw new DataAccessException("Failed deletion vehicle number", e);
+        }
+    }
 }

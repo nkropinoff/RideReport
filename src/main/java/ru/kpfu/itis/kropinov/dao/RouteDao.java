@@ -13,4 +13,5 @@ public interface RouteDao {
     void saveVehicleForRouteWithConnection(int routeId, String vehicle, Connection connection);
     List<RouteNumberDto> findRouteNumbersByCompanyCityAndTransportMode(int companyId, int cityId, int transportModeId);
     boolean isRouteOwnedByCompany(int routeId, int companyId);
+    void deleteRoute(int routeId);
 }

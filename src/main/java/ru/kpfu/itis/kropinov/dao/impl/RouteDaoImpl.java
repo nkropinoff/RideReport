@@ -134,4 +134,25 @@ public class RouteDaoImpl implements RouteDao {
             throw new DataAccessException("Failed check route owning to company", e);
         }
     }
+
+    @Override
+    public void deleteRoute(int routeId) {
+        String sql = "DELETE FROM routes WHERE id = ?";
+
+        try (Connection conn = ds.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, routeId);
+
+            int result = ps.executeUpdate();
+            if (result == 0) {
+                logger.error("Failed deleting route with id: {}, executeUpdate returned 0", routeId);
+                throw new DataAccessException("Failed deleting route with id: " + routeId + ", executeUpdate returned 0");
+            }
+
+        } catch (SQLException e) {
+            logger.error("Failed deleting route with id: {}", routeId, e);
+            throw new DataAccessException("Failed deleting route with id: " + routeId, e);
+        }
+    }
 }
