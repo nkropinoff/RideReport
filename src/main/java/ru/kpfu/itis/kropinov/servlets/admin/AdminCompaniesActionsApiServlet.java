@@ -33,13 +33,13 @@ public class AdminCompaniesActionsApiServlet extends HttpServlet {
         String path = req.getPathInfo();
 
         if (path == null || path.equals("/")) {
-            sendJsonError(resp, HttpServletResponse.SC_BAD_REQUEST, "Invalid request path");
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
         String parts[] = path.split("/");
         if (path.length() < 3) {
-            sendJsonError(resp, HttpServletResponse.SC_BAD_REQUEST, "Missing action or company ID");
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
@@ -47,7 +47,7 @@ public class AdminCompaniesActionsApiServlet extends HttpServlet {
         try {
             companyId = Integer.parseInt(parts[1]);
         } catch (NumberFormatException e) {
-            sendJsonError(resp, HttpServletResponse.SC_BAD_REQUEST, "Invalid company ID");
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
@@ -59,14 +59,14 @@ public class AdminCompaniesActionsApiServlet extends HttpServlet {
         } else if (APPROVE.equals(action)) {
             result = companyService.approveCompany(companyId);
         } else {
-            sendJsonError(resp, HttpServletResponse.SC_BAD_REQUEST, "Unknown action: " + action);
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
         if (result.isSuccess()) {
             resp.setStatus(HttpServletResponse.SC_OK);
         } else {
-            sendJsonError(resp, HttpServletResponse.SC_NOT_FOUND, result.getErrorMessage());
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
@@ -75,14 +75,14 @@ public class AdminCompaniesActionsApiServlet extends HttpServlet {
         String path = req.getPathInfo();
 
         if (path == null || path.equals("/")) {
-            sendJsonError(resp, HttpServletResponse.SC_BAD_REQUEST, "Company ID required");
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
         String[] parts = path.split("/");
 
         if (parts.length < 2) {
-            sendJsonError(resp, HttpServletResponse.SC_BAD_REQUEST, "Invalid path format");
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
@@ -90,7 +90,7 @@ public class AdminCompaniesActionsApiServlet extends HttpServlet {
         try {
             companyId = Integer.parseInt(parts[1]);
         } catch (NumberFormatException e) {
-            sendJsonError(resp, HttpServletResponse.SC_BAD_REQUEST, "Invalid company ID");
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
@@ -98,28 +98,8 @@ public class AdminCompaniesActionsApiServlet extends HttpServlet {
         if (result.isSuccess()) {
             resp.setStatus(HttpServletResponse.SC_OK);
         } else {
-            sendJsonError(resp, HttpServletResponse.SC_NOT_FOUND, result.getErrorMessage());
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
-    private void sendJsonError(HttpServletResponse resp, int status, String message) throws IOException {
-        resp.setStatus(status);
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-
-        PrintWriter writer = resp.getWriter();
-        writer.write("{\"error\":\"" + escapeJson(message) + "\"}");
-        writer.flush();
-    }
-
-    private String escapeJson(String text) {
-        if (text == null) {
-            return "";
-        }
-        return text.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
-    }
 }

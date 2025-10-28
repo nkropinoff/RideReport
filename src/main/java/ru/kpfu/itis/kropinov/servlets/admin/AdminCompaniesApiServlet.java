@@ -38,26 +38,20 @@ public class AdminCompaniesApiServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
 
-        try {
-            int page = parseIntOrDefault(req.getParameter("page"), DEFAULT_PAGE_NUMBER);
-            String sortOrder = req.getParameter("sortOrder") != null ? req.getParameter("sortOrder") : DEFAULT_SORT_ORDER;
-            VerifyStatus status = parseStatus(req.getParameter("status"));
+        int page = parseIntOrDefault(req.getParameter("page"), DEFAULT_PAGE_NUMBER);
+        String sortOrder = req.getParameter("sortOrder") != null ? req.getParameter("sortOrder") : DEFAULT_SORT_ORDER;
+        VerifyStatus status = parseStatus(req.getParameter("status"));
 
-            if (page < 1) page = DEFAULT_PAGE_NUMBER;
+        if (page < 1) page = DEFAULT_PAGE_NUMBER;
 
-            if (!sortOrder.equals("asc") && !sortOrder.equals("desc")) {
-                sortOrder = DEFAULT_SORT_ORDER;
-            }
-
-            CompanySortingDto companySortingDto = new CompanySortingDto(page, PAGE_SIZE, sortOrder, status);
-            PaginatedResult<Company> companies = companyService.getCompanies(companySortingDto);
-
-            mapper.writeValue(resp.getWriter(), companies);
-
-        } catch (Exception e) {
-            logger.error("Failed to fetch companies", e);
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        if (!sortOrder.equals("asc") && !sortOrder.equals("desc")) {
+            sortOrder = DEFAULT_SORT_ORDER;
         }
+
+        CompanySortingDto companySortingDto = new CompanySortingDto(page, PAGE_SIZE, sortOrder, status);
+        PaginatedResult<Company> companies = companyService.getCompanies(companySortingDto);
+
+        mapper.writeValue(resp.getWriter(), companies);
     }
 
     private int parseIntOrDefault(String value, int defaultValue) {

@@ -1,7 +1,10 @@
 package ru.kpfu.itis.kropinov.servlets;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.kpfu.itis.kropinov.exceptions.AccessDeniedException;
+import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -9,11 +12,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.Map;
 
 @WebServlet("/error-handler")
 public class ExceptionHandlerServlet extends HttpServlet {
     private static final Logger logger = LoggerFactory.getLogger(ExceptionHandlerServlet.class);
+    private ObjectMapper mapper;
+
+    @Override
+    public void init() throws ServletException {
+        mapper = (ObjectMapper) getServletContext().getAttribute("objectMapper");
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -40,7 +49,9 @@ public class ExceptionHandlerServlet extends HttpServlet {
         Integer statusCode = (Integer) req.getAttribute("javax.servlet.error.status_code");
         String requestUri = (String) req.getAttribute("javax.servlet.error.request_uri");
 
-        if (statusCode == null) {
+        if (throwable != null) {
+            statusCode = getStatusCodeFromException(throwable);
+        } else if (statusCode == null) {
             statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
         }
 
@@ -58,6 +69,16 @@ public class ExceptionHandlerServlet extends HttpServlet {
             handleApiError(resp, statusCode, throwable);
         } else {
             handlePageError(req, resp, statusCode, throwable, requestUri);
+        }
+    }
+
+    private Integer getStatusCodeFromException(Throwable throwable) {
+        if (throwable instanceof AccessDeniedException) {
+            return 403;
+        } else if (throwable instanceof DataAccessException) {
+            return 500;
+        } else {
+            return 500;
         }
     }
 
@@ -79,20 +100,8 @@ public class ExceptionHandlerServlet extends HttpServlet {
             errorMessage = "Произошла ошибка";
         }
 
-        PrintWriter writer = resp.getWriter();
-        writer.write("{\"error\":\"" + escapeJson(errorMessage) + "\"}");
-        writer.flush();
-    }
-
-    private String escapeJson(String text) {
-        if (text == null) {
-            return "";
-        }
-        return text.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
+        Map <String, Object> errorResponse = Map.of("error", errorMessage);
+        mapper.writeValue(resp.getWriter(), errorResponse);
     }
 
     private void handlePageError(HttpServletRequest req, HttpServletResponse resp, int statusCode, Throwable throwable, String requestUri) throws ServletException, IOException {

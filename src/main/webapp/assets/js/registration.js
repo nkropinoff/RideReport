@@ -85,8 +85,12 @@ $(document).ready(function () {
                }
            },
 
-           error: function() {
-               console.error('Failed email check.');
+           error: function(jqXHR) {
+               let errorMessage = 'Не удалось выполнить операцию';
+               if (jqXHR.responseText && jqXHR.responseText.trim() !== '') {
+                   errorMessage = JSON.parse(jqXHR.responseText).error;
+               }
+               console.error(errorMessage);
                submitButton.prop('disabled', false);
            }
        })

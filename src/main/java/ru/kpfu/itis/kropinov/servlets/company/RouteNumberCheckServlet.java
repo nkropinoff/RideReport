@@ -37,7 +37,7 @@ public class RouteNumberCheckServlet extends HttpServlet {
         String transportModeIdStr = req.getParameter("transportModeId");
 
         if (routeNumber == null || cityIdStr == null || transportModeIdStr == null) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
@@ -47,7 +47,7 @@ public class RouteNumberCheckServlet extends HttpServlet {
             cityId = Integer.parseInt(cityIdStr);
             transportModeId = Integer.parseInt(transportModeIdStr);
         } catch (NumberFormatException e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
