@@ -7,7 +7,6 @@ import ru.kpfu.itis.kropinov.dao.RouteDao;
 import ru.kpfu.itis.kropinov.dao.TransportModeDao;
 import ru.kpfu.itis.kropinov.dao.VehicleDao;
 import ru.kpfu.itis.kropinov.db.CustomDataSource;
-import ru.kpfu.itis.kropinov.dto.PaginatedResult;
 import ru.kpfu.itis.kropinov.dto.Result;
 import ru.kpfu.itis.kropinov.dto.RouteCreationDto;
 import ru.kpfu.itis.kropinov.dto.RouteNumberDto;
@@ -16,15 +15,16 @@ import ru.kpfu.itis.kropinov.entities.Route;
 import ru.kpfu.itis.kropinov.entities.TransportMode;
 import ru.kpfu.itis.kropinov.entities.Vehicle;
 import ru.kpfu.itis.kropinov.exceptions.AccessDeniedException;
+import ru.kpfu.itis.kropinov.exceptions.BusinessException;
 import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
 import ru.kpfu.itis.kropinov.services.RouteService;
 
-import javax.accessibility.AccessibleSelection;
 import javax.sql.DataSource;
-import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class RouteServiceImpl implements RouteService {
     private final static Logger logger = LoggerFactory.getLogger(RouteServiceImpl.class);
@@ -79,7 +79,7 @@ public class RouteServiceImpl implements RouteService {
 
                 connection.commit();
                 return Result.success();
-            } catch (SQLException e) {
+            } catch (SQLException | DataAccessException e) {
                 CustomDataSource.rollback(connection);
                 logger.error("Failed create route", e);
                 throw new DataAccessException("Failed create route", e);
@@ -114,5 +114,64 @@ public class RouteServiceImpl implements RouteService {
         }
 
         return vehicleDao.findVehiclesByRouteId(routeId);
+    }
+
+    @Override
+    public void updateRouteVehicles(int routeId, List<Vehicle> vehicles, int companyId) {
+        if (!routeDao.isRouteOwnedByCompany(routeId, companyId)) {
+            logger.error("Route id: {} is not owned by company id {}", routeId, companyId);
+            throw new AccessDeniedException("Route is not owned by this company.");
+        }
+
+        try (Connection connection = ds.getConnection()) {
+            List<Vehicle> currentVehicles = vehicleDao.findVehiclesByRouteId(routeId);
+
+            Set<Vehicle> currentSet = new HashSet<>(currentVehicles);
+            Set<Vehicle> newSet = new HashSet<>(vehicles);
+
+            Set<Vehicle> additionSet = new HashSet<>(newSet);
+            additionSet.removeAll(currentSet);
+
+            Set<Vehicle> deletionSet = new HashSet<>(currentSet);
+            deletionSet.removeAll(newSet);
+
+            for (Vehicle vehicle : additionSet) {
+                if (isVehicleNumberExists(vehicle.getNumber())) {
+                    logger.error("Vehicle {} is already exists", vehicle.getNumber());
+                    throw new BusinessException("Vehicle " + vehicle.getNumber() + " is already exists");
+                }
+            }
+
+            try {
+                connection.setAutoCommit(false);
+
+                for (Vehicle vehicle : deletionSet) {
+                    vehicleDao.deleteVehicleNumberWithConnection(vehicle.getNumber(), connection);
+                }
+
+                for (Vehicle vehicle : additionSet) {
+                    routeDao.saveVehicleForRouteWithConnection(routeId, vehicle.getNumber(), connection);
+                }
+
+            } catch (SQLException | DataAccessException e) {
+                CustomDataSource.rollback(connection);
+                logger.error("Failed update route vehicles", e);
+                throw new DataAccessException("Failed update route vehicles", e);
+            }
+
+        } catch (SQLException e) {
+            logger.error("Could not obtain connection", e);
+            throw new DataAccessException("Could not obtain connection", e);
+        }
+    }
+
+    @Override
+    public void deleteRoute(int routeId, int companyId) {
+        if (!routeDao.isRouteOwnedByCompany(routeId, companyId)) {
+            logger.error("Route id: {} is not owned by company id {}", routeId, companyId);
+            throw new AccessDeniedException("Route is not owned by this company.");
+        }
+
+        routeDao.deleteRoute(routeId);
     }
 }

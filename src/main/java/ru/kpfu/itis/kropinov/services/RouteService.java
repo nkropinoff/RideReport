@@ -17,4 +17,6 @@ public interface RouteService {
     Result<Void> createRoute(RouteCreationDto dto);
     List<RouteNumberDto> getRouteNumbersByCompanyCityAndTransportMode(int companyId, int cityId, int transportModeId);
     List<Vehicle> getVehiclesByRouteId(int routeId, int companyId);
+    void updateRouteVehicles(int routeId, List<Vehicle> vehicles, int companyId);
+    void deleteRoute(int routeId, int companyId);
 }
