@@ -16,8 +16,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link<#if pageId?? && pageId == 'routes'> active</#if>" href="${ctx}/company/routes">
-                                <i class="bi bi-signpost-2 me-2"></i> Маршруты
+                            <a class="nav-link<#if pageId?? && pageId == 'routes'> active</#if>" href="${ctx}/company/routes/edit">
+                                <i class="bi bi-signpost-2 me-2"></i> Редактирование маршрутов
                             </a>
                         </li>
                         <li class="nav-item">
