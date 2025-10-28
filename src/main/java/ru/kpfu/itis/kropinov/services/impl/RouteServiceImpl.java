@@ -10,12 +10,16 @@ import ru.kpfu.itis.kropinov.db.CustomDataSource;
 import ru.kpfu.itis.kropinov.dto.PaginatedResult;
 import ru.kpfu.itis.kropinov.dto.Result;
 import ru.kpfu.itis.kropinov.dto.RouteCreationDto;
+import ru.kpfu.itis.kropinov.dto.RouteNumberDto;
 import ru.kpfu.itis.kropinov.entities.City;
 import ru.kpfu.itis.kropinov.entities.Route;
 import ru.kpfu.itis.kropinov.entities.TransportMode;
+import ru.kpfu.itis.kropinov.entities.Vehicle;
+import ru.kpfu.itis.kropinov.exceptions.AccessDeniedException;
 import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
 import ru.kpfu.itis.kropinov.services.RouteService;
 
+import javax.accessibility.AccessibleSelection;
 import javax.sql.DataSource;
 import javax.xml.crypto.Data;
 import java.sql.Connection;
@@ -96,5 +100,19 @@ public class RouteServiceImpl implements RouteService {
         }
 
         return null;
+    }
+
+    @Override
+    public List<RouteNumberDto> getRouteNumbersByCompanyCityAndTransportMode(int companyId, int cityId, int transportModeId) {
+        return routeDao.findRouteNumbersByCompanyCityAndTransportMode(companyId, cityId, transportModeId);
+    }
+
+    @Override
+    public List<Vehicle> getVehiclesByRouteId(int routeId, int companyId) {
+        if (!routeDao.isRouteOwnedByCompany(routeId, companyId)) {
+            throw new AccessDeniedException("Route is not owned by this company.");
+        }
+
+        return vehicleDao.findVehiclesByRouteId(routeId);
     }
 }
