@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import ru.kpfu.itis.kropinov.dto.Result;
 import ru.kpfu.itis.kropinov.dto.RouteCreationDto;
 import ru.kpfu.itis.kropinov.dto.UserSessionDto;
+import ru.kpfu.itis.kropinov.entities.Vehicle;
 import ru.kpfu.itis.kropinov.services.RouteService;
 
 import javax.servlet.ServletException;
@@ -66,7 +67,7 @@ public class CompanyRoutesServlet extends HttpServlet {
             return;
         }
 
-        List<String> vehicles = mapper.readValue(vehiclesJson, new TypeReference<List<String>>() {});
+        List<String> vehicleNumbers = mapper.readValue(vehiclesJson, new TypeReference<List>() {});
 
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
@@ -80,8 +81,7 @@ public class CompanyRoutesServlet extends HttpServlet {
         }
 
         int companyId = ((UserSessionDto) session.getAttribute("user")).getCompanyInfo().get().getCompanyId();
-
-
+        List<Vehicle> vehicles = vehicleNumbers.stream().map(Vehicle::new).toList();
         RouteCreationDto routeCreationDto = new RouteCreationDto(companyId, cityId, transportModeId, routeNumber, vehicles);
         Result<Void> result = routeService.createRoute(routeCreationDto);
         if (!result.isSuccess()) {
@@ -91,6 +91,5 @@ public class CompanyRoutesServlet extends HttpServlet {
         }
 
         resp.sendRedirect(req.getContextPath() + "/company/routes");
-
     }
 }

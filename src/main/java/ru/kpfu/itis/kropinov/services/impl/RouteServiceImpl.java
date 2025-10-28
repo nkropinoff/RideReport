@@ -73,8 +73,8 @@ public class RouteServiceImpl implements RouteService {
                 connection.setAutoCommit(false);
 
                 Route savedRoute = routeDao.saveRouteWithConnection(newRoute, connection);
-                for (String vehicle : dto.getVehicles()) {
-                    routeDao.saveVehicleForRouteWithConnection(savedRoute.getId(), vehicle, connection);
+                for (Vehicle vehicle : dto.getVehicles()) {
+                    routeDao.saveVehicleForRouteWithConnection(savedRoute.getId(), vehicle.getNumber(), connection);
                 }
 
                 connection.commit();
@@ -94,9 +94,9 @@ public class RouteServiceImpl implements RouteService {
 
         if (routeNumberIsExists(dto.getTransportModeId(), dto.getCityId(), dto.getRouteNumber())) return "Маршрут с таким номером для этого типа транспорта уже существует в этом городе";
 
-        for (String vehicleNumber : dto.getVehicles()) {
-            if (vehicleNumber.length() > 20) return "Номер ТС не должен превышать 20 символов.";
-            if (isVehicleNumberExists(vehicleNumber)) return "Этот номер ТС уже используется в другом маршруте";
+        for (Vehicle vehicle : dto.getVehicles()) {
+            if (vehicle.getNumber().length() > 20) return "Номер ТС не должен превышать 20 символов.";
+            if (isVehicleNumberExists(vehicle.getNumber())) return "Этот номер ТС уже используется в другом маршруте";
         }
 
         return null;
