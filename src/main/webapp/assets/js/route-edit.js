@@ -121,7 +121,7 @@ $(document).ready(function () {
 
     function loadRouteDetails(routeId) {
         $.ajax({
-            url: ctx + 'api/company/routes/' + routeId,
+            url: ctx + '/api/company/routes/' + routeId,
             method: 'GET',
             dataType: 'json',
             success: function(response) {
