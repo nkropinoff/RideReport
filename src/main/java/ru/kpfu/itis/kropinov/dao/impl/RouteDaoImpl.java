@@ -155,4 +155,30 @@ public class RouteDaoImpl implements RouteDao {
             throw new DataAccessException("Failed deleting route with id: " + routeId, e);
         }
     }
+
+    @Override
+    public List<RouteNumberDto> findRouteNumbersByCityAndTransportMode(int cityId, int transportModeId) {
+        String sql = "SELECT id, number FROM routes WHERE city_id = ? AND transport_mode_id = ?";
+        List<RouteNumberDto> routeNumbers = new ArrayList<>();
+
+        try (Connection connection = ds.getConnection();
+        PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, cityId);
+            stmt.setInt(2, transportModeId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    routeNumbers.add(new RouteNumberDto(
+                            rs.getInt("id"),
+                            rs.getString("number")
+                    ));
+                }
+            }
+
+            return routeNumbers;
+        } catch (SQLException e) {
+            logger.error("Failed to fetch routes by city id: {} and transport mode id: {}", cityId, transportModeId, e);
+            throw new DataAccessException("Failed to fetch routes by city id and transport mode id", e);
+        }
+    }
 }

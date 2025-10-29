@@ -2,7 +2,6 @@ package ru.kpfu.itis.kropinov.dao;
 
 import ru.kpfu.itis.kropinov.dto.RouteNumberDto;
 import ru.kpfu.itis.kropinov.entities.Route;
-import ru.kpfu.itis.kropinov.entities.Vehicle;
 
 import java.sql.Connection;
 import java.util.List;
@@ -14,4 +13,5 @@ public interface RouteDao {
     List<RouteNumberDto> findRouteNumbersByCompanyCityAndTransportMode(int companyId, int cityId, int transportModeId);
     boolean isRouteOwnedByCompany(int routeId, int companyId);
     void deleteRoute(int routeId);
+    List<RouteNumberDto> findRouteNumbersByCityAndTransportMode(int cityId, int transportModeId);
 }
