@@ -14,6 +14,7 @@ public class AuthorizationFilter extends HttpFilter {
 
     private final Set<String> allowedPaths = Set.of("/", "/login", "/logout", "/register");
     private final String allowedStatic = "/assets";
+    private final Set<String> allowedPathsToPassenger = Set.of("/reviews/new", "/api/routes", "/api/vehicles");
 
     @Override
     protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
@@ -51,7 +52,7 @@ public class AuthorizationFilter extends HttpFilter {
         return switch(user.getRole()) {
             case ADMIN -> path.startsWith("/admin") || path.startsWith("/api/admin") || path.startsWith("/profile");
             case COMPANY -> path.startsWith("/company") || path.startsWith("/api/company") || path.startsWith("/profile");
-            case PASSENGER -> path.startsWith("/review") || path.startsWith("/profile");
+            case PASSENGER -> allowedPathsToPassenger.contains(path) || path.startsWith("/profile");
         };
     }
 }
