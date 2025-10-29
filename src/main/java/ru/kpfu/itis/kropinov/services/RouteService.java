@@ -16,7 +16,9 @@ public interface RouteService {
     boolean routeNumberIsExists(int companyId, int cityId, String routeNumber);
     Result<Void> createRoute(RouteCreationDto dto);
     List<RouteNumberDto> getRouteNumbersByCompanyCityAndTransportMode(int companyId, int cityId, int transportModeId);
-    List<Vehicle> getVehiclesByRouteId(int routeId, int companyId);
+    List<Vehicle> getVehiclesByRouteIdAndCompanyId(int routeId, int companyId);
     void updateRouteVehicles(int routeId, List<Vehicle> vehicles, int companyId);
     void deleteRoute(int routeId, int companyId);
+    List<RouteNumberDto> getRouteNumbersByCityAndTransportMode(int cityId, int transportModeId);
+    List<Vehicle> getVehiclesByRouteId(int routeId);
 }

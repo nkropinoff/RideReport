@@ -108,7 +108,7 @@ public class RouteServiceImpl implements RouteService {
     }
 
     @Override
-    public List<Vehicle> getVehiclesByRouteId(int routeId, int companyId) {
+    public List<Vehicle> getVehiclesByRouteIdAndCompanyId(int routeId, int companyId) {
         if (!routeDao.isRouteOwnedByCompany(routeId, companyId)) {
             throw new AccessDeniedException("Route is not owned by this company.");
         }
@@ -173,5 +173,15 @@ public class RouteServiceImpl implements RouteService {
         }
 
         routeDao.deleteRoute(routeId);
+    }
+
+    @Override
+    public List<RouteNumberDto> getRouteNumbersByCityAndTransportMode(int cityId, int transportModeId) {
+        return routeDao.findRouteNumbersByCityAndTransportMode(cityId, transportModeId);
+    }
+
+    @Override
+    public List<Vehicle> getVehiclesByRouteId(int routeId) {
+        return vehicleDao.findVehiclesByRouteId(routeId);
     }
 }
