@@ -90,6 +90,6 @@ public class CompanyRoutesServlet extends HttpServlet {
             return;
         }
 
-        resp.sendRedirect(req.getContextPath() + "/company/routes");
+        resp.sendRedirect(req.getContextPath() + "/company/dashboard");
     }
 }
