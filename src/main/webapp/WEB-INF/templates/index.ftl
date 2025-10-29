@@ -11,7 +11,7 @@
                         <h1 class="display-5 fw-bold mb-3">Сделайте транспорт лучше</h1>
                         <p class="lead mb-4">Увидели проблему в автобусе или трамвае? Оставьте отзыв — он напрямую попадёт к компании и повлияет на реальные изменения.</p>
                         <div class="d-flex gap-3 justify-content-center">
-                            <a href="#" class="btn btn-cta btn-lg px-4">Оставить отзыв</a>
+                            <a href="${ctx}/reviews/new" class="btn btn-cta btn-lg px-4">Оставить отзыв</a>
                             <a href="#how" class="btn btn-raise btn-lg px-4">Как это работает</a>
                         </div>
                     </div>

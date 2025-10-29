@@ -37,7 +37,7 @@
                             </li>
                         <#elseif user.role == 'PASSENGER'>
                             <li class="nav-item">
-                                <a class="btn btn-cta px-3" href="${ctx}/feedback/new">Оставить отзыв</a>
+                                <a class="btn btn-cta px-3" href="${ctx}/reviews/new">Оставить отзыв</a>
                             </li>
                         </#if>
 
