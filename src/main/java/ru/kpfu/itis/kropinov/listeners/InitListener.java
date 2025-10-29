@@ -7,14 +7,8 @@ import ru.kpfu.itis.kropinov.dao.*;
 import ru.kpfu.itis.kropinov.dao.impl.*;
 import ru.kpfu.itis.kropinov.db.CustomConnectionPool;
 import ru.kpfu.itis.kropinov.db.CustomDataSource;
-import ru.kpfu.itis.kropinov.services.CompanyService;
-import ru.kpfu.itis.kropinov.services.FileStorageService;
-import ru.kpfu.itis.kropinov.services.RouteService;
-import ru.kpfu.itis.kropinov.services.UserService;
-import ru.kpfu.itis.kropinov.services.impl.CompanyServiceImpl;
-import ru.kpfu.itis.kropinov.services.impl.FileStorageServiceImpl;
-import ru.kpfu.itis.kropinov.services.impl.RouteServiceImpl;
-import ru.kpfu.itis.kropinov.services.impl.UserServiceImpl;
+import ru.kpfu.itis.kropinov.services.*;
+import ru.kpfu.itis.kropinov.services.impl.*;
 import ru.kpfu.itis.kropinov.utils.PropertiesUtil;
 
 import javax.servlet.ServletContextEvent;
@@ -44,7 +38,9 @@ public class InitListener implements ServletContextListener {
         UserDao userDao = new UserDaoImpl(dataSource);
         VehicleDao vehicleDao = new VehicleDaoImpl(dataSource);
         RouteDao routeDao = new RouteDaoImpl(dataSource);
+        FeedbackDao feedbackDao = new FeedbackDaoImpl(dataSource);
 
+        ReviewService reviewService = new ReviewServiceImpl(feedbackDao);
         RouteService routeService = new RouteServiceImpl(dataSource, cityDao, transportModeDao, vehicleDao, routeDao);
         FileStorageService fileStorageService = new FileStorageServiceImpl(cloudinary);
         UserService userService = new UserServiceImpl(dataSource, fileStorageService, userDao, companyDao, companyDocumentDao);
@@ -53,6 +49,7 @@ public class InitListener implements ServletContextListener {
         sce.getServletContext().setAttribute("userService", userService);
         sce.getServletContext().setAttribute("companyService", companyService);
         sce.getServletContext().setAttribute("routeService", routeService);
+        sce.getServletContext().setAttribute("reviewService", reviewService);
 
         sce.getServletContext().setAttribute("objectMapper", new ObjectMapper());
     }

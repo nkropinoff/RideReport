@@ -37,7 +37,7 @@ public class CompanyRouteDetailsApiServlet extends HttpServlet {
 
         int routeId = routeIdOptional.get();
         int companyId = getCompanyId(req);
-        List<String> vehicles = routeService.getVehiclesByRouteId(routeId, companyId).stream().map(Vehicle::getNumber).toList();
+        List<String> vehicles = routeService.getVehiclesByRouteIdAndCompanyId(routeId, companyId).stream().map(Vehicle::getNumber).toList();
 
         Map<String, Object> result = Map.of("vehicles", vehicles);
         resp.setContentType("application/json");
