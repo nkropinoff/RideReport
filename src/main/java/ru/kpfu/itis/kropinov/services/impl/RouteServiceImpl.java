@@ -184,4 +184,6 @@ public class RouteServiceImpl implements RouteService {
     public List<Vehicle> getVehiclesByRouteId(int routeId) {
         return vehicleDao.findVehiclesByRouteId(routeId);
     }
+
+
 }
