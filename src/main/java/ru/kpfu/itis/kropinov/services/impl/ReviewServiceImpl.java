@@ -6,9 +6,7 @@ import ru.kpfu.itis.kropinov.dao.FeedbackDao;
 import ru.kpfu.itis.kropinov.dao.ReviewDao;
 import ru.kpfu.itis.kropinov.dao.ReviewPhotoDao;
 import ru.kpfu.itis.kropinov.db.CustomDataSource;
-import ru.kpfu.itis.kropinov.dto.CloudinaryUploadResult;
-import ru.kpfu.itis.kropinov.dto.FeedbackCategoryDto;
-import ru.kpfu.itis.kropinov.dto.ReviewCreationDto;
+import ru.kpfu.itis.kropinov.dto.*;
 import ru.kpfu.itis.kropinov.entities.Review;
 import ru.kpfu.itis.kropinov.entities.ReviewPhoto;
 import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
@@ -59,7 +57,7 @@ public class ReviewServiceImpl implements ReviewService {
                     reviewDao.saveFeedbackTagConnectedToReviewWithConnection(savedReview.getId(), tagId, connection);
                 }
 
-                if (dto.getPhoto() != null) {
+                if (dto.getPhoto() != null && dto.getPhoto().getSize() > 0) {
                     Part photo = dto.getPhoto();
                     CloudinaryUploadResult uploadResult = fileStorageService.saveFile(photo.getInputStream(), photo.getSubmittedFileName(), photo.getContentType(), REVIEWS_PHOTO_FOLDER);
                     ReviewPhoto reviewPhoto = new ReviewPhoto(
@@ -82,6 +80,19 @@ public class ReviewServiceImpl implements ReviewService {
         } catch (SQLException e) {
             logger.error("Could not obtain connection", e);
             throw new DataAccessException("Could not obtain connection", e);
+        }
+    }
+
+    @Override
+    public PaginatedResult<ReviewTableInfoDto> getReviewsTableInfo(ReviewSortingDto dto) {
+        try (Connection connection = ds.getConnection()) {
+            List<ReviewTableInfoDto> reviewTableInfoDtos = reviewDao.findReviewTableInfoWithConnection(dto, connection);
+            int totalCount = reviewDao.countAllReviewsByCompanyWithConnection(dto.getCompanyId(), connection);
+            int totalPages = (int) Math.ceil( (double) totalCount / dto.getSize());
+            return new PaginatedResult<>(reviewTableInfoDtos, totalPages, dto.getPage());
+        } catch (SQLException e) {
+            logger.error("Failed to fetch reviewTableInfos", e);
+            throw new DataAccessException("Failed to fetch reviewTableInfos", e);
         }
     }
 }
