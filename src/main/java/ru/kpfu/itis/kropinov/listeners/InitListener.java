@@ -7,6 +7,7 @@ import ru.kpfu.itis.kropinov.dao.*;
 import ru.kpfu.itis.kropinov.dao.impl.*;
 import ru.kpfu.itis.kropinov.db.CustomConnectionPool;
 import ru.kpfu.itis.kropinov.db.CustomDataSource;
+import ru.kpfu.itis.kropinov.entities.Review;
 import ru.kpfu.itis.kropinov.services.*;
 import ru.kpfu.itis.kropinov.services.impl.*;
 import ru.kpfu.itis.kropinov.utils.PropertiesUtil;
@@ -39,12 +40,14 @@ public class InitListener implements ServletContextListener {
         VehicleDao vehicleDao = new VehicleDaoImpl(dataSource);
         RouteDao routeDao = new RouteDaoImpl(dataSource);
         FeedbackDao feedbackDao = new FeedbackDaoImpl(dataSource);
+        ReviewDao reviewDao = new ReviewDaoImpl();
+        ReviewPhotoDao reviewPhotoDao = new ReviewPhotoDaoImpl();
 
-        ReviewService reviewService = new ReviewServiceImpl(feedbackDao);
         RouteService routeService = new RouteServiceImpl(dataSource, cityDao, transportModeDao, vehicleDao, routeDao);
         FileStorageService fileStorageService = new FileStorageServiceImpl(cloudinary);
         UserService userService = new UserServiceImpl(dataSource, fileStorageService, userDao, companyDao, companyDocumentDao);
         CompanyService companyService = new CompanyServiceImpl(dataSource, companyDao, companyDocumentDao, userDao, fileStorageService);
+        ReviewService reviewService = new ReviewServiceImpl(dataSource, fileStorageService, feedbackDao, reviewDao, reviewPhotoDao);
 
         sce.getServletContext().setAttribute("userService", userService);
         sce.getServletContext().setAttribute("companyService", companyService);

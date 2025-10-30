@@ -14,7 +14,7 @@ public class AuthorizationFilter extends HttpFilter {
 
     private final Set<String> allowedPaths = Set.of("/", "/login", "/logout", "/register");
     private final String allowedStatic = "/assets";
-    private final Set<String> allowedPathsToPassenger = Set.of("/reviews/new", "/api/routes", "/api/vehicles");
+    private final Set<String> allowedPathsToPassenger = Set.of("/reviews/new", "/api/routes", "/api/vehicles", "/reviews");
 
     @Override
     protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
