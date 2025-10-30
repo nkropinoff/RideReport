@@ -130,6 +130,9 @@
                                             placeholder="Расскажите подробнее"
                                             maxlength="2000"></textarea>
                                 </div>
+                            </div>
+                            <div class="border-top pt-2 mb-4">
+                                <p class="text-muted small text-center mb-3">При необходимости прикрепите фото</p>
                                 <div class="photo-upload-wrapper">
                                     <input
                                             type="file"
@@ -152,6 +155,8 @@
                                     </label>
                                 </div>
                             </div>
+
+                            <input type="hidden" name="selectedTags" id="selectedTags">
 
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-cta btn-lg">

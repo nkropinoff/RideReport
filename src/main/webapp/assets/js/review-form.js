@@ -5,7 +5,7 @@ $(document).ready(function() {
         width: '100%',
     }
 
-    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
     const now = new Date();
     const offset = now.getTimezoneOffset() * 60000;
