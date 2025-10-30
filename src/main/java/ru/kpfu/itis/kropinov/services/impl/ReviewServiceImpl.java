@@ -48,7 +48,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public void createReview(ReviewCreationDto dto) {
-        Review review = new Review(dto.getUserId(), dto.getRouteId(), dto.getVehicleNumber(), dto.getRideTime(), dto.getReviewText(), dto.isProvideEmail());
+        Review review = new Review(dto.getUserId(), dto.getRouteId(), dto.getVehicleNumber(), dto.getRideTime(), dto.getReviewText());
 
         try (Connection connection = ds.getConnection()) {
             connection.setAutoCommit(false);

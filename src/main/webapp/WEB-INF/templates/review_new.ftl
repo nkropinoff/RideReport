@@ -143,19 +143,6 @@
                                 </div>
                             </div>
 
-                            <div class="border-top pt-2 mb-4">
-                                <div class="form-check text-center">
-                                    <input class="form-check-input"
-                                           type="checkbox"
-                                           name="provideEmail"
-                                           id="provideEmail"
-                                           value="true">
-                                    <label class="form-check-label" for="provideEmail">
-                                        Согласен предоставить свой email компании
-                                    </label>
-                                </div>
-                            </div>
-
                             <input type="hidden" name="selectedTags" id="selectedTags">
 
                             <div class="d-grid">

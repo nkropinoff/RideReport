@@ -11,17 +11,15 @@ public class ReviewCreationDto {
     private LocalDateTime rideTime;
     private List<Integer> feedbackTagIds;
     private String reviewText;
-    private boolean provideEmail;
     private Part photo;
 
-    public ReviewCreationDto(int userId, int routeId, String vehicleNumber, LocalDateTime rideTime, List<Integer> feedbackTagIds, String reviewText, Boolean provideEmail, Part photo) {
+    public ReviewCreationDto(int userId, int routeId, String vehicleNumber, LocalDateTime rideTime, List<Integer> feedbackTagIds, String reviewText, Part photo) {
         this.userId = userId;
         this.routeId = routeId;
         this.vehicleNumber = vehicleNumber;
         this.rideTime = rideTime;
         this.feedbackTagIds = feedbackTagIds;
         this.reviewText = reviewText;
-        this.provideEmail = provideEmail;
         this.photo = photo;
     }
 
@@ -47,10 +45,6 @@ public class ReviewCreationDto {
 
     public String getReviewText() {
         return reviewText;
-    }
-
-    public boolean isProvideEmail() {
-        return provideEmail;
     }
 
     public Part getPhoto() {

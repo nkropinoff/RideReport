@@ -9,25 +9,22 @@ public class Review {
     private String vehicleNumber;
     private LocalDateTime rideTime;
     private String text;
-    private boolean provideEmail;
 
-    public Review(int id, int ownerId, int routeId, String vehicleNumber, LocalDateTime rideTime, String text, boolean provideEmail) {
+    public Review(int id, int ownerId, int routeId, String vehicleNumber, LocalDateTime rideTime, String text) {
         this.id = id;
         this.ownerId = ownerId;
         this.routeId = routeId;
         this.vehicleNumber = vehicleNumber;
         this.rideTime = rideTime;
         this.text = text;
-        this.provideEmail = provideEmail;
     }
 
-    public Review(int ownerId, int routeId, String vehicleNumber, LocalDateTime rideTime, String text, boolean provideEmail) {
+    public Review(int ownerId, int routeId, String vehicleNumber, LocalDateTime rideTime, String text) {
         this.ownerId = ownerId;
         this.routeId = routeId;
         this.vehicleNumber = vehicleNumber;
         this.rideTime = rideTime;
         this.text = text;
-        this.provideEmail = provideEmail;
     }
 
     public void setId(int id) {
@@ -52,10 +49,6 @@ public class Review {
 
     public String getText() {
         return text;
-    }
-
-    public boolean isProvideEmail() {
-        return provideEmail;
     }
 
     public int getRouteId() {

@@ -41,7 +41,6 @@ public class ReviewsServlet extends HttpServlet {
         String rideTimeString = req.getParameter("rideTime");
         String selectedTags = req.getParameter("selectedTags");
         String reviewText = req.getParameter("reviewText");
-        String provideEmailString = req.getParameter("provideEmail");
 
         Part photo;
         try {
@@ -93,11 +92,10 @@ public class ReviewsServlet extends HttpServlet {
 
         reviewText = (reviewText == null || reviewText.trim().isEmpty()) ? null : reviewText.trim();
         LocalDateTime rideTime = LocalDateTime.parse(rideTimeString);
-        boolean provideEmail = "true".equals(provideEmailString);
 
         int userId = ((UserSessionDto) req.getSession(false).getAttribute("user")).getId();
 
-        ReviewCreationDto dto = new ReviewCreationDto(userId, routeId, vehicleNumber, rideTime, feedbackTagIds, reviewText, provideEmail, photo);
+        ReviewCreationDto dto = new ReviewCreationDto(userId, routeId, vehicleNumber, rideTime, feedbackTagIds, reviewText, photo);
         reviewService.createReview(dto);
 
         resp.sendRedirect(req.getContextPath());

@@ -15,8 +15,8 @@ public class ReviewDaoImpl implements ReviewDao {
     @Override
     public Review saveWithConnection(Review review, Connection connection) {
         String sql = """
-                INSERT INTO reviews (owner_id, route_id, vehicle_number, ride_time, text, provide_email)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO reviews (owner_id, route_id, vehicle_number, ride_time, text)
+                VALUES (?, ?, ?, ?, ?)
                 """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -25,7 +25,6 @@ public class ReviewDaoImpl implements ReviewDao {
             stmt.setString(3, review.getVehicleNumber());
             stmt.setObject(4, review.getRideTime());
             stmt.setString(5, review.getText());
-            stmt.setBoolean(6, review.isProvideEmail());
 
             int result = stmt.executeUpdate();
             if (result == 0) {
