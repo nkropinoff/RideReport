@@ -9,6 +9,7 @@ import ru.kpfu.itis.kropinov.db.CustomDataSource;
 import ru.kpfu.itis.kropinov.dto.*;
 import ru.kpfu.itis.kropinov.entities.Review;
 import ru.kpfu.itis.kropinov.entities.ReviewPhoto;
+import ru.kpfu.itis.kropinov.exceptions.AccessDeniedException;
 import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
 import ru.kpfu.itis.kropinov.services.FileStorageService;
 import ru.kpfu.itis.kropinov.services.ReviewService;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public class ReviewServiceImpl implements ReviewService {
     private final static Logger logger = LoggerFactory.getLogger(ReviewServiceImpl.class);
@@ -94,5 +96,21 @@ public class ReviewServiceImpl implements ReviewService {
             logger.error("Failed to fetch reviewTableInfos", e);
             throw new DataAccessException("Failed to fetch reviewTableInfos", e);
         }
+    }
+
+    @Override
+    public Result<ReviewDetailsDto> getReviewDetails(int reviewId, int companyId) {
+        if (!reviewDao.isReviewIntendedForCompany(reviewId, companyId)) {
+            logger.warn("Review with id: {} is not intended for company with id: {}", reviewId, companyId);
+            throw new AccessDeniedException("Review is not intended for company");
+        }
+
+        Optional<ReviewDetailsDto> reviewDetailsDtoOptional = reviewDao.findReviewDetails(reviewId);
+        if (reviewDetailsDtoOptional.isEmpty()) {
+            return Result.error("Review not found");
+        }
+
+        ReviewDetailsDto reviewDetails = reviewDetailsDtoOptional.get();
+        return Result.success(reviewDetails);
     }
 }

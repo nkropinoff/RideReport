@@ -8,4 +8,5 @@ public interface ReviewService {
     List<FeedbackCategoryDto> getAllFeedbackCategoriesWithTags();
     void createReview(ReviewCreationDto dto);
     PaginatedResult<ReviewTableInfoDto> getReviewsTableInfo(ReviewSortingDto dto);
+    Result<ReviewDetailsDto> getReviewDetails(int reviewId, int companyId);
 }

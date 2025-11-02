@@ -40,7 +40,7 @@ public class InitListener implements ServletContextListener {
         VehicleDao vehicleDao = new VehicleDaoImpl(dataSource);
         RouteDao routeDao = new RouteDaoImpl(dataSource);
         FeedbackDao feedbackDao = new FeedbackDaoImpl(dataSource);
-        ReviewDao reviewDao = new ReviewDaoImpl();
+        ReviewDao reviewDao = new ReviewDaoImpl(dataSource);
         ReviewPhotoDao reviewPhotoDao = new ReviewPhotoDaoImpl();
 
         RouteService routeService = new RouteServiceImpl(dataSource, cityDao, transportModeDao, vehicleDao, routeDao);
