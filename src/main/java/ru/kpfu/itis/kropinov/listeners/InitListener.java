@@ -42,17 +42,20 @@ public class InitListener implements ServletContextListener {
         FeedbackDao feedbackDao = new FeedbackDaoImpl(dataSource);
         ReviewDao reviewDao = new ReviewDaoImpl(dataSource);
         ReviewPhotoDao reviewPhotoDao = new ReviewPhotoDaoImpl();
+        StatisticsDao statisticsDao = new StatisticsDaoImpl(dataSource);
 
         RouteService routeService = new RouteServiceImpl(dataSource, cityDao, transportModeDao, vehicleDao, routeDao);
         FileStorageService fileStorageService = new FileStorageServiceImpl(cloudinary);
         UserService userService = new UserServiceImpl(dataSource, fileStorageService, userDao, companyDao, companyDocumentDao);
         CompanyService companyService = new CompanyServiceImpl(dataSource, companyDao, companyDocumentDao, userDao, fileStorageService);
         ReviewService reviewService = new ReviewServiceImpl(dataSource, fileStorageService, feedbackDao, reviewDao, reviewPhotoDao);
+        StatisticsService statisticsService = new StatisticsServiceImpl(vehicleDao, statisticsDao);
 
         sce.getServletContext().setAttribute("userService", userService);
         sce.getServletContext().setAttribute("companyService", companyService);
         sce.getServletContext().setAttribute("routeService", routeService);
         sce.getServletContext().setAttribute("reviewService", reviewService);
+        sce.getServletContext().setAttribute("statisticsService", statisticsService);
 
         sce.getServletContext().setAttribute("objectMapper", new ObjectMapper());
     }

@@ -99,4 +99,23 @@ public class VehicleDaoImpl implements VehicleDao {
             throw new DataAccessException("Failed to fetch vehicle number by company id: " + companyId, e);
         }
     }
+
+    @Override
+    public boolean isVehicleOwnedByCompany(int companyId, String vehicleNumber) {
+        String sql = "SELECT EXISTS(SELECT 1 FROM route_vehicles rv JOIN routes r ON rv.route_id = r.id WHERE r.company_id = ? AND rv.vehicle_number = ?)";
+
+        try (Connection connection = ds.getConnection();
+        PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setInt(1, companyId);
+            stmt.setString(2, vehicleNumber);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() && rs.getBoolean(1);
+            }
+        } catch (SQLException e) {
+            logger.error("Failed check is vehicle number: {} owned by company with id: {}", vehicleNumber, companyId, e);
+            throw new DataAccessException("Failed to check is vehicle number owned by company", e);
+        }
+    }
 }

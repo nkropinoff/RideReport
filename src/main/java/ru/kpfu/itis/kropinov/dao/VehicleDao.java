@@ -10,4 +10,5 @@ public interface VehicleDao {
     List<Vehicle> findVehiclesByRouteId(int routeId);
     void deleteVehicleNumberWithConnection(String vehicleNumber, Connection connection);
     List<Vehicle> findVehiclesByCompanyId(int companyId);
+    boolean isVehicleOwnedByCompany(int companyId, String vehicleNumber);
 }
