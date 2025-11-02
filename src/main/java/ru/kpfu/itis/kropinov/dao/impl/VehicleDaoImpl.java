@@ -75,4 +75,28 @@ public class VehicleDaoImpl implements VehicleDao {
             throw new DataAccessException("Failed deletion vehicle number", e);
         }
     }
+
+    @Override
+    public List<Vehicle> findVehiclesByCompanyId(int companyId) {
+        String sql = "SELECT rv.vehicle_number FROM route_vehicles rv JOIN routes r ON rv.route_id = r.id WHERE r.company_id = ?";
+        List<Vehicle> vehicles = new ArrayList<>();
+
+        try (Connection connection = ds.getConnection();
+        PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, companyId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    vehicles.add(new Vehicle(
+                       rs.getString("vehicle_number")
+                    ));
+                }
+            }
+
+            return vehicles;
+        } catch (SQLException e) {
+            logger.error("Failed to fetch vehicle number by company id: {}", companyId, e);
+            throw new DataAccessException("Failed to fetch vehicle number by company id: " + companyId, e);
+        }
+    }
 }

@@ -9,4 +9,5 @@ public interface VehicleDao {
     boolean existsByVehicleNumber(String vehicleNumber);
     List<Vehicle> findVehiclesByRouteId(int routeId);
     void deleteVehicleNumberWithConnection(String vehicleNumber, Connection connection);
+    List<Vehicle> findVehiclesByCompanyId(int companyId);
 }
