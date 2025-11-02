@@ -4,20 +4,28 @@ import ch.qos.logback.core.spi.DeferredProcessingAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.kpfu.itis.kropinov.dao.ReviewDao;
+import ru.kpfu.itis.kropinov.dto.RatingItem;
+import ru.kpfu.itis.kropinov.dto.ReviewDetailsDto;
 import ru.kpfu.itis.kropinov.dto.ReviewSortingDto;
 import ru.kpfu.itis.kropinov.dto.ReviewTableInfoDto;
 import ru.kpfu.itis.kropinov.entities.Review;
 import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ReviewDaoImpl implements ReviewDao {
     private final static Logger logger = LoggerFactory.getLogger(ReviewDaoImpl.class);
+    private final DataSource dataSource;
 
+    public ReviewDaoImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     @Override
     public Review saveWithConnection(Review review, Connection connection) {
@@ -149,6 +157,107 @@ public class ReviewDaoImpl implements ReviewDao {
         } catch (SQLException e) {
             logger.error("Failed to count reviews of company with id: {}", companyId, e);
             throw new DataAccessException("Failed to count reviews of company with id: " + companyId, e);
+        }
+    }
+
+    @Override
+    public boolean isReviewIntendedForCompany(int reviewId, int companyId) {
+        String sql = "SELECT EXISTS(SELECT 1 FROM reviews JOIN routes ON reviews.route_id = routes.id WHERE reviews.id = ? AND routes.company_id = ?)";
+
+        try (Connection connection = dataSource.getConnection();
+        PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, reviewId);
+            stmt.setInt(2, companyId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() && rs.getBoolean(1);
+            }
+        } catch (SQLException e) {
+            logger.error("Failed to check is review with id: {} intended to company with id: {}", reviewId, companyId, e);
+            throw new DataAccessException("Failed to check is review intended to company", e);
+        }
+    }
+
+    @Override
+    public Optional<ReviewDetailsDto> findReviewDetails(int reviewId) {
+        String sql = """
+                        SELECT
+                            r.ride_time as ride_time,
+                            u.email as passenger_email,
+                            c.name as city,
+                            tm.name as transport_mode,
+                            rt.number as route,
+                            r.vehicle_number as vehicle_number,
+                            r.text as text,
+                            rp.storage_url as photo_url
+                        FROM reviews r
+                        LEFT JOIN users u ON r.owner_id = u.id
+                        LEFT JOIN review_photo rp ON r.id = rp.review_id
+                        JOIN routes rt ON r.route_id = rt.id
+                        JOIN cities c ON rt.city_id = c.id
+                        JOIN transport_modes tm ON rt.transport_mode_id = tm.id
+                        WHERE r.id = ?
+                    """;
+
+        try (Connection connection = dataSource.getConnection();
+        PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, reviewId);
+
+            ReviewDetailsDto reviewDetails = null;
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    reviewDetails = new ReviewDetailsDto(
+                            formattedRideTime(rs.getObject("ride_time", LocalDateTime.class)),
+                            rs.getString("passenger_email"),
+                            rs.getString("city"),
+                            rs.getString("transport_mode"),
+                            rs.getString("route"),
+                            rs.getString("vehicle_number"),
+                            rs.getString("text"),
+                            rs.getString("photo_url"));
+
+                    reviewDetails.setRatings(findRatingItems(reviewId, connection));
+                }
+            }
+
+            return Optional.ofNullable(reviewDetails);
+        } catch (SQLException e) {
+            logger.error("Failed to fetch review details", e);
+            throw new DataAccessException("Failed to fetch review details", e);
+        }
+    }
+
+    public List<RatingItem> findRatingItems(int reviewId, Connection connection) {
+        String sql = """
+                        SELECT 
+                            fc.name as feedback_category,
+                            ft.name as feedback_tag,
+                            ft.type::text as tag_type
+                        FROM review_tags rt
+                        JOIN feedback_tags ft ON rt.tag_id = ft.id
+                        JOIN feedback_categories fc ON ft.category_id = fc.id
+                        WHERE rt.review_id = ?
+                        ORDER BY fc.name, ft.name
+                    """;
+
+        List<RatingItem> ratings = new ArrayList<>();
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, reviewId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    ratings.add(new RatingItem(
+                            rs.getString("feedback_category"),
+                            rs.getString("feedback_tag"),
+                            rs.getString("tag_type")
+                    ));
+                }
+            }
+            return ratings;
+        } catch (SQLException e) {
+            logger.error("Failed to fetch rating items", e);
+            throw new DataAccessException("Failed to fetch rating items", e);
         }
     }
 }
