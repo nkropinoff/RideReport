@@ -8,7 +8,7 @@
     <div class="container py-4">
         <div class="row gx-4">
             <aside class="col-lg-2">
-                <nav id="adminSidebar" class="p-3 rounded">
+                <nav id="adminSidebar" class="p-3 rounded sidebar">
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link<#if pageId?? && pageId == 'overview'> active</#if>" href="${ctx}/admin/dashboard">
@@ -30,7 +30,7 @@
             </aside>
 
             <main class="col-lg-10">
-                <div id="adminContentCard" class="p-4 rounded">
+                <div id="adminContentCard" class="p-4 rounded content-card">
 
                     <div class="border-bottom pb-2 mb-3">
                         <h3 class="fw-semibold mb-0">${sectionTitle}</h3>

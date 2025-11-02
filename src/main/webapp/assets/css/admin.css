@@ -1,42 +1,3 @@
-#adminSidebar {
-    background-color: #fff;
-    border: 1px solid rgba(0,0,0,.07);
-    box-shadow: 0 8px 24px rgba(0,0,0,.05);
-}
-
-#adminSidebar .nav-link {
-    font-weight: 500;
-    color: var(--rr-text-dark);
-    margin-bottom: 0.25rem;
-    padding: .6rem .8rem;
-    border-radius: .5rem;
-    transition: all .2s ease;
-    font-size: 0.95rem;
-}
-
-#adminSidebar .nav-link .bi {
-    font-size: 1rem;
-}
-
-#adminSidebar .nav-link:hover {
-    color: var(--rr-primary-600);
-    background-color: rgba(37, 99, 235, .07);
-    transform: translateX(4px);
-}
-
-#adminSidebar .nav-link.active {
-    color: #fff;
-    background: linear-gradient(135deg, var(--rr-primary-start), var(--rr-primary-end));
-    box-shadow: 0 4px 15px rgba(37, 99, 235, .3);
-    transform: translateX(0);
-}
-
-#adminContentCard {
-    background-color: #fff;
-    border: 1px solid rgba(0,0,0,.07);
-    box-shadow: 0 8px 24px rgba(0,0,0,.05);
-}
-
 .overview-cards-container .card {
     border: 1px solid rgba(0,0,0,.1);
     transition: border-color .2s ease-in-out, box-shadow .2s ease-in-out;
@@ -45,10 +6,4 @@
 .overview-cards-container .card:hover {
     border-color: var(--rr-primary-600);
     box-shadow: 0 6px 20px rgba(37, 99, 235, .15);
-}
-
-@media (max-width: 991.98px) {
-    #adminSidebar {
-        margin-bottom: 1.5rem;
-    }
 }

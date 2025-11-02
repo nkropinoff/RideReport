@@ -6,7 +6,7 @@
 </#macro>
 
 <#macro table_filters>
-    <div id="sort-filters" class="btn-group">
+    <div id="sort-filters" class="btn-group filters">
         <button type="button" class="btn btn-sm btn-light active" data-order="desc">Сначала новые</button>
         <button type="button" class="btn btn-sm btn-light" data-order="asc">Сначала старые</button>
     </div>
@@ -15,8 +15,4 @@
 <#macro page_extra_script>
     <script src="${ctx}/assets/js/common-table.js"></script>
     <script src="${ctx}/assets/js/company-reviews.js"></script>
-</#macro>
-
-<#macro page_company_extra_head>
-    <link rel="stylesheet" href="${ctx}/assets/css/company-reviews.css">
 </#macro>
