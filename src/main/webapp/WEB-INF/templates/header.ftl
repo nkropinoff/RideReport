@@ -41,7 +41,9 @@
                             </li>
                         </#if>
 
-                        <!--TODO: change logout nav item to drop menu with settings and logout -->
+                        <li class="nav-item ms-lg-2">
+                            <a class="btn btn-soft-outline px-3" href="${ctx}/profile">Профиль</a>
+                        </li>
 
                         <li class="nav-item ms-lg-2">
                             <a class="btn btn-soft-outline px-3" href="${ctx}/logout">Выйти</a>

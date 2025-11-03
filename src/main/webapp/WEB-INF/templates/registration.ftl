@@ -121,6 +121,10 @@
 
 <#macro page_extra_script>
     <script src="${ctx}/assets/js/registration.js"></script>
+    <script src="${ctx}/assets/js/email-validator.js"></script>
+    <script>
+        initEmailValidation('.email-check');
+    </script>
 </#macro>
 
 <#macro page_footer>
