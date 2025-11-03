@@ -241,4 +241,48 @@ public class UserServiceImpl implements UserService {
     public int countAllPassengers() {
         return userDao.countAllPassengers();
     }
+
+    @Override
+    public Result<UserSessionDto> updateEmail(int userId, String email) {
+        if (!isValidEmail(email)) return Result.error("Email не соответствует формату.");
+        if (isEmailTaken(email)) {
+            logger.warn("User with email {} already exist.", email);
+            return Result.error("Пользователь с таким email уже существует.");
+        }
+
+        Optional<User> newUserOptional = userDao.updateEmail(userId, email);
+
+        if (newUserOptional.isEmpty()) {
+            logger.warn("User with id: {} was not updated email, cause he is not exist", userId);
+            return Result.error("Пользователь для обновления не найден");
+        }
+
+        User newUser = newUserOptional.get();
+        return Result.success(createSessionDto(newUser));
+    }
+
+    @Override
+    public Result<Void> updatePassword(int userId, String currentPassword, String newPassword, String confirmPassword) {
+        if (!isValidPassword(currentPassword)) return Result.error("Длина пароля должна быть не менее 8 символов.");
+        if (!isValidPassword(newPassword)) return Result.error("Длина пароля должна быть не менее 8 символов.");
+        if (!isValidPassword(confirmPassword)) return Result.error("Длина пароля должна быть не менее 8 символов.");
+
+        if (!newPassword.equals(confirmPassword)) return Result.error("Новый пароль и его подтверждение не совпадают.");
+
+        Optional<User> userOptional = userDao.findById(userId);
+        if (userOptional.isEmpty()) {
+            logger.warn("User with id: {} not found", userId);
+            return Result.error("Пользователь не найден");
+        }
+
+        User user = userOptional.get();
+        if (!PasswordUtil.check(currentPassword, user.getHashedPassword())) {
+            logger.warn("User with id: {} failed update password - wrong current password", userId);
+            return Result.error("Неверный пароль");
+        }
+
+        String hashedNewPassword = PasswordUtil.encrypt(newPassword);
+        userDao.updatePassword(userId, hashedNewPassword);
+        return Result.success();
+    }
 }

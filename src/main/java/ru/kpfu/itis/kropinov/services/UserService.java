@@ -9,4 +9,6 @@ public interface UserService {
     Result<UserSessionDto> login(UserLoginDto dto);
     int countAllCompanies();
     int countAllPassengers();
+    Result<UserSessionDto> updateEmail(int userId, String email);
+    Result<Void> updatePassword(int userId, String currentPassword, String newPassword, String confirmPassword);
 }
