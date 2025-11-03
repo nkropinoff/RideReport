@@ -231,4 +231,14 @@ public class UserServiceImpl implements UserService {
 
         return Result.success();
     }
+
+    @Override
+    public int countAllCompanies() {
+        return userDao.countAllCompanies();
+    }
+
+    @Override
+    public int countAllPassengers() {
+        return userDao.countAllPassengers();
+    }
 }

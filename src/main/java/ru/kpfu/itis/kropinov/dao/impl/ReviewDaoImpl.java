@@ -260,4 +260,21 @@ public class ReviewDaoImpl implements ReviewDao {
             throw new DataAccessException("Failed to fetch rating items", e);
         }
     }
+
+    @Override
+    public int countAllReviews() {
+        String sql = "SELECT COUNT(*) FROM reviews";
+        try (Connection connection = dataSource.getConnection();
+        Statement stmt = connection.createStatement()) {
+            try (ResultSet rs = stmt.executeQuery(sql)) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+            return 0;
+        } catch (SQLException e) {
+            logger.error("Failed to count reviews", e);
+            throw new DataAccessException("Failed to count reviews", e);
+        }
+    }
 }

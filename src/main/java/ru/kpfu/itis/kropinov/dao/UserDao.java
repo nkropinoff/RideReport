@@ -10,4 +10,6 @@ public interface UserDao {
     Optional<User> findByEmail(String email);
     User saveWithConnection(User user, Connection connection);
     void deleteByIdWithConnection(int id, Connection connection);
+    int countAllCompanies();
+    int countAllPassengers();
 }

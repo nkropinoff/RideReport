@@ -9,4 +9,5 @@ public interface ReviewService {
     void createReview(ReviewCreationDto dto);
     PaginatedResult<ReviewTableInfoDto> getReviewsTableInfo(ReviewSortingDto dto);
     Result<ReviewDetailsDto> getReviewDetails(int reviewId, int companyId);
+    int countAllReviews();
 }

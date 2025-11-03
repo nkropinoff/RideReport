@@ -7,4 +7,6 @@ public interface UserService {
     Result<Void> registerCompany(CompanyRegistrationDto dto);
     boolean isEmailTaken(String email);
     Result<UserSessionDto> login(UserLoginDto dto);
+    int countAllCompanies();
+    int countAllPassengers();
 }

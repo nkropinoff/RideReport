@@ -8,10 +8,7 @@ import ru.kpfu.itis.kropinov.enums.Role;
 import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Optional;
 
 public class UserDaoImpl implements UserDao {
@@ -104,6 +101,40 @@ public class UserDaoImpl implements UserDao {
         } catch (SQLException e) {
             logger.error("Failed delete user with id {}", id);
             throw new DataAccessException("Failed delete user with id " + id, e);
+        }
+    }
+
+    @Override
+    public int countAllPassengers() {
+        String sql = "SELECT COUNT(*) FROM users WHERE role = 'PASSENGER'";
+        try (Connection connection = ds.getConnection();
+             Statement stmt = connection.createStatement()) {
+            try (ResultSet rs = stmt.executeQuery(sql)) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+            return 0;
+        } catch (SQLException e) {
+            logger.error("Failed to count passengers", e);
+            throw new DataAccessException("Failed to count passengers", e);
+        }
+    }
+
+    @Override
+    public int countAllCompanies() {
+        String sql = "SELECT COUNT(*) FROM users WHERE role = 'COMPANY'";
+        try (Connection connection = ds.getConnection();
+             Statement stmt = connection.createStatement()) {
+            try (ResultSet rs = stmt.executeQuery(sql)) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+            return 0;
+        } catch (SQLException e) {
+            logger.error("Failed to count companies", e);
+            throw new DataAccessException("Failed to count companies", e);
         }
     }
 }

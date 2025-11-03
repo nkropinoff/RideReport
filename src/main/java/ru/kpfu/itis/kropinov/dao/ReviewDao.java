@@ -16,4 +16,5 @@ public interface ReviewDao {
     int countAllReviewsByCompanyWithConnection(int companyId, Connection connection);
     boolean isReviewIntendedForCompany(int reviewId, int companyId);
     Optional<ReviewDetailsDto> findReviewDetails(int reviewId);
+    int countAllReviews();
 }

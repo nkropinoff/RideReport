@@ -20,11 +20,6 @@
                                 <i class="bi bi-building me-2"></i> Компании
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link<#if pageId?? && pageId == 'reviews'> active</#if>" href="${ctx}/admin/reviews">
-                                <i class="bi bi-chat-left-text me-2"></i> Отзывы
-                            </a>
-                        </li>
                     </ul>
                 </nav>
             </aside>

@@ -113,4 +113,9 @@ public class ReviewServiceImpl implements ReviewService {
         ReviewDetailsDto reviewDetails = reviewDetailsDtoOptional.get();
         return Result.success(reviewDetails);
     }
+
+    @Override
+    public int countAllReviews() {
+        return reviewDao.countAllReviews();
+    }
 }
