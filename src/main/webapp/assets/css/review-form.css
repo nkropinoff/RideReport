@@ -25,16 +25,6 @@
     font-size: 0.95rem;
 }
 
-.select2-container--bootstrap-5.select2-container--focus .select2-selection,
-.select2-container--bootstrap-5.select2-container--open .select2-selection {
-    box-shadow: none !important;
-}
-
-.select2-container--bootstrap-5 .select2-selection:focus {
-    outline: none !important;
-    box-shadow: none !important;
-}
-
 .review-card .btn-cta {
     padding: 0.75rem 1.5rem;
     font-weight: 500;

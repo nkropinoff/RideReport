@@ -1,0 +1,62 @@
+.stats-card {
+    background-color: #fff; border: 1px solid #dee2e6;
+    border-radius: .75rem; padding: 1.5rem; margin-bottom: 2rem;
+}
+
+.stats-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 1.5rem;
+}
+
+.stats-card-header h5 {
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.stats-card-header .select2-container {
+    flex-basis: 300px;
+    flex-grow: 0;
+    flex-shrink: 1;
+}
+
+.stat-item {
+    width: 100%;
+    max-width: calc(200px + 1.5rem + 450px);
+
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 1.5rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.stat-category-name {
+    font-weight: 500;
+    color: #495057;
+    font-size: 0.95rem;
+    text-align: left;
+}
+.stat-values {
+    display: flex; justify-content: space-between;
+    font-size: 0.8rem; font-weight: 500; margin-bottom: 0.25rem;
+}
+
+.bg-success { background-color: #52ba63 !important; }
+.bg-danger { background-color: #e53849 !important; }
+
+.stat-values .positive { color: #52ba63; }
+.stat-values .negative { color: #e53849; }
+
+.progress-wrapper { max-width: 450px; }
+
+#company-stats-container,
+#vehicle-stats-container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
