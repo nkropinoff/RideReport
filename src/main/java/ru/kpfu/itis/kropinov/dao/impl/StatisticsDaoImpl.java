@@ -45,7 +45,7 @@ public class StatisticsDaoImpl implements StatisticsDao {
 
             stmt.setInt(1, companyId);
 
-            try (ResultSet rs = stmt.executeQuery(sql)) {
+            try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     categoryStatDtos.add(new CategoryStatDto(
                             rs.getInt("id"),
@@ -84,7 +84,7 @@ public class StatisticsDaoImpl implements StatisticsDao {
 
             stmt.setString(1, vehicleNumber);
 
-            try (ResultSet rs = stmt.executeQuery(sql)) {
+            try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     categoryStatDtos.add(new CategoryStatDto(
                             rs.getInt("id"),

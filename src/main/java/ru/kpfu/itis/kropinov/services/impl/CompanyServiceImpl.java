@@ -5,10 +5,12 @@ import org.slf4j.LoggerFactory;
 import ru.kpfu.itis.kropinov.dao.CompanyDao;
 import ru.kpfu.itis.kropinov.dao.CompanyDocumentDao;
 import ru.kpfu.itis.kropinov.dao.UserDao;
+import ru.kpfu.itis.kropinov.dao.VehicleDao;
 import ru.kpfu.itis.kropinov.db.CustomDataSource;
 import ru.kpfu.itis.kropinov.dto.*;
 import ru.kpfu.itis.kropinov.entities.Company;
 import ru.kpfu.itis.kropinov.entities.CompanyDocument;
+import ru.kpfu.itis.kropinov.entities.Vehicle;
 import ru.kpfu.itis.kropinov.enums.VerifyStatus;
 import ru.kpfu.itis.kropinov.exceptions.DataAccessException;
 import ru.kpfu.itis.kropinov.services.CompanyService;
@@ -18,7 +20,6 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,16 +29,18 @@ public class CompanyServiceImpl implements CompanyService {
     private final CompanyDao companyDao;
     private final CompanyDocumentDao companyDocumentDao;
     private final UserDao userDao;
+    private final VehicleDao vehicleDao;
     private final DataSource dataSource;
     private final FileStorageService fileStorageService;
 
     private static final String DOWNLOAD_URL_PATTERN = "/admin/companies/download/%d";
 
-    public CompanyServiceImpl(DataSource dataSource, CompanyDao companyDao, CompanyDocumentDao companyDocumentDao, UserDao userDao, FileStorageService fileStorageService) {
-        this.dataSource = dataSource;
+    public CompanyServiceImpl(CompanyDao companyDao, CompanyDocumentDao companyDocumentDao, UserDao userDao, VehicleDao vehicleDao, DataSource dataSource, FileStorageService fileStorageService) {
         this.companyDao = companyDao;
         this.companyDocumentDao = companyDocumentDao;
         this.userDao = userDao;
+        this.vehicleDao = vehicleDao;
+        this.dataSource = dataSource;
         this.fileStorageService = fileStorageService;
     }
 
@@ -193,5 +196,10 @@ public class CompanyServiceImpl implements CompanyService {
             logger.error("Failed to get file for download", e);
             return Result.error("Failed to get file");
         }
+    }
+
+    @Override
+    public List<Vehicle> getCompanyVehicles(int companyId) {
+        return vehicleDao.findVehiclesByCompanyId(companyId);
     }
 }
