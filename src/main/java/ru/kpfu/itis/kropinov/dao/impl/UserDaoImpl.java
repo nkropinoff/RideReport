@@ -72,7 +72,7 @@ public class UserDaoImpl implements UserDao {
             User user = null;
             if (rs != null && rs.next()) {
                 user = new User(
-                        rs.getInt(1),
+                        rs.getInt("id"),
                         rs.getString("email"),
                         rs.getString("password_hash"),
                         Role.valueOf(rs.getString("role"))
@@ -135,6 +135,78 @@ public class UserDaoImpl implements UserDao {
         } catch (SQLException e) {
             logger.error("Failed to count companies", e);
             throw new DataAccessException("Failed to count companies", e);
+        }
+    }
+
+    @Override
+    public Optional<User> updateEmail(int userId, String email) {
+        String sql = "UPDATE users SET email = ? WHERE id = ? RETURNING *";
+        try (Connection connection = ds.getConnection();
+        PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            stmt.setInt(2, userId);
+
+
+            User updatedUser = null;
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    updatedUser = new User(
+                            rs.getInt("id"),
+                            rs.getString("email"),
+                            rs.getString("password_hash"),
+                            Role.valueOf(rs.getString("role"))
+                    );
+                }
+            }
+
+            return Optional.ofNullable(updatedUser);
+        } catch (SQLException e) {
+            logger.error("Failed to update user email with id: {}", userId, e);
+            throw new DataAccessException("Failed to update user email with id: " + userId, e);
+        }
+    }
+
+    @Override
+    public Optional<User> findById(int userId) {
+        String sql = "select * from users where id = ?";
+        try (Connection connection = ds.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+
+            ResultSet rs = stmt.executeQuery();
+            User user = null;
+            if (rs != null && rs.next()) {
+                user = new User(
+                        rs.getInt("id"),
+                        rs.getString("email"),
+                        rs.getString("password_hash"),
+                        Role.valueOf(rs.getString("role"))
+                );
+            }
+            return Optional.ofNullable(user);
+        } catch (SQLException e) {
+            logger.error("Error while finding user by id: {}", userId, e);
+            throw new DataAccessException("Error while finding user by id: " + userId, e);
+        }
+    }
+
+    @Override
+    public void updatePassword(int userId, String hashedPassword) {
+        String sql = "UPDATE users SET password_hash = ? WHERE id = ?";
+        try (Connection connection = ds.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, hashedPassword);
+            stmt.setInt(2, userId);
+
+            int result = stmt.executeUpdate();
+            if (result == 0) {
+                logger.error("Failed to update password for user with id: {} - executeUpdate() returned 0", userId);
+                throw new DataAccessException("Failed to update password - executeUpdate() returned 0");
+            }
+
+        } catch (SQLException e) {
+            logger.error("Failed to update user password with id: {}", userId, e);
+            throw new DataAccessException("Failed to update user password with id: " + userId, e);
         }
     }
 }

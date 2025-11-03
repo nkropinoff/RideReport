@@ -12,4 +12,7 @@ public interface UserDao {
     void deleteByIdWithConnection(int id, Connection connection);
     int countAllCompanies();
     int countAllPassengers();
+    Optional<User> updateEmail(int userId, String email);
+    Optional<User> findById(int userId);
+    void updatePassword(int userId, String hashedPassword);
 }
