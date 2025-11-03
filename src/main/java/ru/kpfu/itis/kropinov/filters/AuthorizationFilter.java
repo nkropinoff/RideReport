@@ -12,7 +12,7 @@ import java.util.Set;
 @WebFilter(filterName = "authorizationFilter")
 public class AuthorizationFilter extends HttpFilter {
 
-    private final Set<String> allowedPaths = Set.of("/", "/login", "/logout", "/register");
+    private final Set<String> allowedPaths = Set.of("/", "/login", "/logout", "/register", "/api/check-email");
     private final String allowedStatic = "/assets";
     private final Set<String> allowedPathsToPassenger = Set.of("/reviews/new", "/api/routes", "/api/vehicles", "/reviews");
 
