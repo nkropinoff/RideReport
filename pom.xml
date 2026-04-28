@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.kpfu.itis.kropinov</groupId>
-    <artifactId>semester-work-servlets-nkropinoff</artifactId>
+    <artifactId>ridereport</artifactId>
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
 
