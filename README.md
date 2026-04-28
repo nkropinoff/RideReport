@@ -4,6 +4,17 @@ A web platform for public transport passengers and transit operators. Passengers
 
 ---
 
+## Screenshots
+
+| | |
+|---|---|
+| ![](docs/screenshots/welcome-1.png) | ![](docs/screenshots/welcome-2.png) |
+| ![](docs/screenshots/report-1.png) | ![](docs/screenshots/report-2.png) |
+| ![](docs/screenshots/report-3.png) | ![](docs/screenshots/company-statistics.png) |
+| ![](docs/screenshots/company-report-details.png) | ![](docs/screenshots/admin-companies.png) |
+
+---
+
 ## Overview
 
 RideReport bridges two audiences: everyday passengers who want to share their experience after a trip, and transport companies that need structured feedback to monitor service quality. The platform supports a full registration and moderation pipeline — companies go through an admin-reviewed approval process before gaining access to the operator panel.
@@ -15,23 +26,20 @@ RideReport bridges two audiences: everyday passengers who want to share their ex
 ### Passenger
 
 - Register and authenticate via email and password
-- Submit ride reviews: select a route, specify the vehicle number and ride time, write a free-form comment, and attach photos
-- View personal review history with filtering options
+- Submit a ride review: select a route, specify the vehicle number and ride time, write a free-form comment, and attach photos
 
 ### Company
 
 - Submit a registration request with supporting documents attached
 - Access the operator panel after admin approval
 - Add and manage routes and vehicles
-- View the full list of reviews linked to company services
-- Inspect individual reviews in detail
+- View all reviews linked to company services; inspect each review in detail
 - Access aggregated statistics per vehicle and route
 
 ### Administrator
 
 - Review incoming company registration requests
-- Approve or reject applications
-- Download submitted company documents
+- Approve or reject applications with the ability to download submitted documents
 - Manage company statuses through a dedicated admin panel
 
 ---
@@ -41,16 +49,18 @@ RideReport bridges two audiences: everyday passengers who want to share their ex
 | Layer | Technology |
 |---|---|
 | Language | Java 23 |
-| Web layer | Jakarta Servlet API 4.0 |
+| Web layer | Servlet API 4.0 |
 | Template engine | Apache FreeMarker 2.3.34 |
 | Database | PostgreSQL |
-| DB access | Raw JDBC with DAO pattern |
+| DB access | Raw JDBC, DAO pattern |
 | Password hashing | jBCrypt |
-| JSON serialization | Jackson Databind 2.17 |
-| Image storage | Cloudinary (SDK 2.3) |
+| JSON / AJAX | Jackson Databind 2.17 |
+| Image storage | Cloudinary SDK 2.3 |
 | Logging | SLF4J + Logback |
-| Build tool | Maven (WAR packaging) |
-| Runtime | Any Jakarta EE-compatible servlet container (e.g. Apache Tomcat) |
+| Build | Maven, WAR packaging |
+| Runtime | Apache Tomcat (or any Servlet 4.0 container) |
+
+> Several UI interactions (route/vehicle selects, real-time input validation) are implemented via AJAX — the server exposes lightweight JSON endpoints consumed by vanilla JS on the client side.
 
 ---
 
@@ -59,45 +69,48 @@ RideReport bridges two audiences: everyday passengers who want to share their ex
 The project follows a layered architecture without a framework:
 
 ```
-servlets/          — HTTP request handling, split by role: /admin, /company, /passenger
-services/          — Business logic
-dao/               — Data access objects, raw JDBC queries
-db/                — Connection pool / datasource configuration
-entities/          — Domain model: User, Company, Route, Vehicle, Review, ReviewPhoto, ...
-dto/               — Data transfer objects between layers
-filters/           — Servlet filters (authentication, authorization by role)
-listeners/         — ServletContextListener for application bootstrap
-config/            — Configuration loading (database, Cloudinary)
-utils/             — Shared utilities
-enums/             — Role and status enumerations
-exceptions/        — Custom exception hierarchy
+servlets/     — request handling, organised by role: /admin, /company, /passenger
+services/     — business logic
+dao/          — data access, raw JDBC
+db/           — connection pool configuration
+entities/     — domain model
+dto/          — data transfer objects
+filters/      — authentication and role-based access control
+listeners/    — application bootstrap (ServletContextListener)
+config/       — external configuration loading
+utils/        — shared helpers
+enums/        — role and status definitions
+exceptions/   — custom exception hierarchy
 ```
 
-Role-based access control is enforced at the filter level. Three roles exist: `PASSENGER`, `COMPANY`, and `ADMIN`. Each role maps to its own URL namespace and servlet group.
+Access control is enforced at the filter level. Three roles exist — `PASSENGER`, `COMPANY`, `ADMIN` — each mapped to its own URL namespace.
 
 ---
 
 ## Data Model
 
-Core entities and their relationships:
-
-- **User** — platform account, holds role and credentials
-- **Company** — linked to a User, carries approval status and document references
-- **CompanyDocument** — files submitted during company registration (stored on Cloudinary)
-- **Route** — belongs to a Company, defined by route number and transport mode
-- **TransportMode** — type of transport (bus, tram, trolleybus, etc.)
-- **Vehicle** — identified by number, linked to a Route
-- **Review** — written by a passenger, references a Route and a specific vehicle number, includes ride timestamp and free-form text
-- **ReviewPhoto** — one or more photos attached to a Review (stored on Cloudinary)
-- **City** — geographic reference used for routes
+- **User** — account with role and credentials
+- **Company** — linked to a User, carries approval status
+- **CompanyDocument** — files submitted during registration, stored on Cloudinary
+- **Route** — belongs to a Company, defined by number and transport mode
+- **TransportMode** — bus, tram, trolleybus, etc.
+- **Vehicle** — identified by board number, linked to a Route
+- **Review** — written by a passenger; references a Route, vehicle number, and ride timestamp
+- **ReviewPhoto** — photos attached to a Review, stored on Cloudinary
+- **City** — geographic reference for routes
 
 ---
 
 ## Configuration
 
-Sensitive credentials are kept outside of version control. The repository includes `.template` files as reference:
+Credentials are not committed to the repository. Copy the provided templates and fill in your values:
 
-**`src/main/resources/database.properties`** — copy from `database.properties.template`:
+```bash
+cp src/main/resources/database.properties.template src/main/resources/database.properties
+cp src/main/resources/cloudinary.properties.template src/main/resources/cloudinary.properties
+```
+
+`database.properties`:
 ```properties
 db.url=jdbc:postgresql://localhost:5432/ridereport
 db.username=your_username
@@ -105,7 +118,7 @@ db.password=your_password
 db.pool.size=10
 ```
 
-**`src/main/resources/cloudinary.properties`** — copy from `cloudinary.properties.template`:
+`cloudinary.properties`:
 ```properties
 cloudinary.cloud_name=your_cloud_name
 cloudinary.api_key=your_api_key
@@ -119,25 +132,17 @@ cloudinary.api_secret=your_api_secret
 **Prerequisites:** JDK 23+, Maven 3.8+, PostgreSQL, Apache Tomcat 10+
 
 ```bash
-# Clone the repository
 git clone https://github.com/nkropinoff/RideReport.git
 cd RideReport
 
-# Set up configuration files
-cp src/main/resources/database.properties.template src/main/resources/database.properties
-cp src/main/resources/cloudinary.properties.template src/main/resources/cloudinary.properties
-# Fill in your credentials in both files
+# configure credentials (see above)
 
-# Build the WAR artifact
 mvn clean package
-
-# Deploy target/semester-work-servlets-nkropinoff-1.0-SNAPSHOT.war to Tomcat
+# deploy target/*.war to Tomcat
 ```
-
-After deployment the application is available at the root context of your Tomcat instance.
 
 ---
 
 ## Project Status
 
-Developed as a semester project at Kazan Federal University (ITIS). The codebase demonstrates a production-style layered Java web application built without a framework — intentionally using the Servlet API directly to cover the fundamentals of request lifecycle, session management, and manual dependency wiring.
+Developed as a semester project at Kazan Federal University (ITIS). The codebase demonstrates a production-style layered Java web application built on the Servlet API without a framework — covering the fundamentals of request lifecycle, session management, role-based access control, and manual dependency wiring.
