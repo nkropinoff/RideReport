@@ -1,109 +1,109 @@
 # RideReport
 
-A web platform for public transport passengers and transit operators. Passengers can leave detailed reviews of their rides; companies can register on the platform, manage their routes and fleet, and track feedback analytics across their services.
+Веб-платформа для пассажиров общественного транспорта и транспортных компаний. Пассажиры оставляют отзывы о поездках; компании регистрируются на платформе, управляют маршрутами и парком, отслеживают обратную связь по своим услугам.
 
 ---
 
-## Screenshots
+## Скриншоты
 
 | | |
 |---|---|
 | ![](docs/screenshots/welcome-1.png) | ![](docs/screenshots/welcome-2.png) |
 | ![](docs/screenshots/report-1.png) | ![](docs/screenshots/report-2.png) |
-| ![](docs/screenshots/report-3x.png) | ![](docs/screenshots/company-statistics.png) |
+| ![](docs/screenshots/report-3.png) | ![](docs/screenshots/company-statistics.png) |
 | ![](docs/screenshots/company-report-details.png) | ![](docs/screenshots/admin-companies.png) |
 
 ---
 
-## Overview
+## Описание
 
-RideReport bridges two audiences: everyday passengers who want to share their experience after a trip, and transport companies that need structured feedback to monitor service quality. The platform supports a full registration and moderation pipeline — companies go through an admin-reviewed approval process before gaining access to the operator panel.
-
----
-
-## Features
-
-### Passenger
-
-- Register and authenticate via email and password
-- Submit a ride review: select a route, specify the vehicle number and ride time, write a free-form comment, and attach photos
-
-### Company
-
-- Submit a registration request with supporting documents attached
-- Access the operator panel after admin approval
-- Add and manage routes and vehicles
-- View all reviews linked to company services; inspect each review in detail
-- Access aggregated statistics per vehicle and route
-
-### Administrator
-
-- Review incoming company registration requests
-- Approve or reject applications with the ability to download submitted documents
-- Manage company statuses through a dedicated admin panel
+RideReport объединяет две аудитории: пассажиров, которые хотят поделиться опытом после поездки, и транспортные компании, которым нужна структурированная обратная связь для контроля качества услуг. Платформа поддерживает полный цикл регистрации и модерации — компании проходят проверку администратором, прежде чем получить доступ к панели оператора.
 
 ---
 
-## Tech Stack
+## Функциональность
 
-| Layer | Technology |
+### Пассажир
+
+- Регистрация и аутентификация по email и паролю
+- Создание отзыва о поездке: выбор маршрута, указание номера ТС и времени поездки, произвольный текст, прикрепление фотографий
+
+### Компания
+
+- Подача заявки на регистрацию с прикреплением подтверждающих документов
+- Доступ к панели оператора после одобрения заявки администратором
+- Добавление и управление маршрутами и транспортными средствами
+- Просмотр всех отзывов по услугам компании, детальный просмотр каждого отзыва
+- Агрегированная статистика по транспортным средствам и маршрутам
+
+### Администратор
+
+- Рассмотрение входящих заявок на регистрацию компаний
+- Одобрение или отклонение заявок, скачивание приложенных документов
+- Управление статусами компаний через выделенную административную панель
+
+---
+
+## Стек технологий
+
+| Слой | Технология |
 |---|---|
-| Language | Java 23 |
-| Web layer | Servlet API 4.0 |
-| Template engine | Apache FreeMarker 2.3.34 |
-| Database | PostgreSQL |
-| DB access | Raw JDBC, DAO pattern |
-| Password hashing | jBCrypt |
+| Язык | Java 23 |
+| Веб-слой | Servlet API 4.0 |
+| Шаблонизатор | Apache FreeMarker 2.3.34 |
+| База данных | PostgreSQL |
+| Доступ к БД | Raw JDBC, паттерн DAO |
+| Хеширование паролей | jBCrypt |
 | JSON / AJAX | Jackson Databind 2.17 |
-| Image storage | Cloudinary SDK 2.3 |
-| Logging | SLF4J + Logback |
-| Build | Maven, WAR packaging |
-| Runtime | Apache Tomcat (or any Servlet 4.0 container) |
+| Хранение изображений | Cloudinary SDK 2.3 |
+| Логирование | SLF4J + Logback |
+| Сборка | Maven, WAR-пакет |
+| Сервер | Apache Tomcat (или любой Servlet 4.0-совместимый контейнер) |
 
-> Several UI interactions (route/vehicle selects, real-time input validation) are implemented via AJAX — the server exposes lightweight JSON endpoints consumed by vanilla JS on the client side.
+> Ряд UI-взаимодействий — динамические селекты маршрута и ТС, real-time валидация полей — реализован через AJAX: сервер отдаёт облегчённые JSON-эндпоинты, которые потребляет клиентский JS.
 
 ---
 
-## Architecture
+## Архитектура
 
-The project follows a layered architecture without a framework:
+Проект следует слоистой архитектуре без использования фреймворка:
 
 ```
-servlets/     — request handling, organised by role: /admin, /company, /passenger
-services/     — business logic
-dao/          — data access, raw JDBC
-db/           — connection pool configuration
-entities/     — domain model
-dto/          — data transfer objects
-filters/      — authentication and role-based access control
-listeners/    — application bootstrap (ServletContextListener)
-config/       — external configuration loading
-utils/        — shared helpers
-enums/        — role and status definitions
-exceptions/   — custom exception hierarchy
+servlets/     — обработка HTTP-запросов, разбита по ролям: /admin, /company, /passenger
+services/     — бизнес-логика
+dao/          — доступ к данным, raw JDBC
+db/           — конфигурация пула соединений
+entities/     — доменная модель
+dto/          — объекты передачи данных между слоями
+filters/      — аутентификация и ролевой контроль доступа
+listeners/    — инициализация приложения (ServletContextListener)
+config/       — загрузка внешней конфигурации
+utils/        — общие утилиты
+enums/        — определения ролей и статусов
+exceptions/   — иерархия пользовательских исключений
 ```
 
-Access control is enforced at the filter level. Three roles exist — `PASSENGER`, `COMPANY`, `ADMIN` — each mapped to its own URL namespace.
+Контроль доступа реализован на уровне фильтров. Три роли — `PASSENGER`, `COMPANY`, `ADMIN` — каждая маппится на своё пространство URL.
 
 ---
 
-## Data Model
+## Модель данных
 
-- **User** — account with role and credentials
-- **Company** — linked to a User, carries approval status
-- **CompanyDocument** — files submitted during registration, stored on Cloudinary
-- **Route** — belongs to a Company, defined by number and transport mode
-- **TransportMode** — bus, tram, trolleybus, etc.
-- **Vehicle** — identified by board number, linked to a Route
-- **Review** — written by a passenger; references a Route, vehicle number, and ride timestamp
-- **ReviewPhoto** — photos attached to a Review, stored on Cloudinary
-- **City** — geographic reference for routes
+- **User** — аккаунт пользователя с ролью и учётными данными
+- **Company** — привязана к User, хранит статус одобрения
+- **CompanyDocument** — файлы, приложенные при регистрации; хранятся на Cloudinary
+- **Route** — принадлежит Company, определяется номером и типом транспорта
+- **TransportMode** — вид транспорта: автобус, трамвай, троллейбус и др.
+- **Vehicle** — идентифицируется бортовым номером, привязан к маршруту
+- **Review** — написан пассажиром; ссылается на маршрут, номер ТС и время поездки
+- **ReviewPhoto** — фотографии к отзыву, хранятся на Cloudinary
+- **City** — географический справочник для маршрутов
 
 ---
 
-## Configuration
+## Конфигурация
 
-Credentials are not committed to the repository. Copy the provided templates and fill in your values:
+Конфиденциальные данные не хранятся в репозитории. Скопируй шаблоны и заполни свои значения:
 
 ```bash
 cp src/main/resources/database.properties.template src/main/resources/database.properties
@@ -127,22 +127,22 @@ cloudinary.api_secret=your_api_secret
 
 ---
 
-## Getting Started
+## Запуск
 
-**Prerequisites:** JDK 23+, Maven 3.8+, PostgreSQL, Apache Tomcat 10+
+**Требования:** JDK 23+, Maven 3.8+, PostgreSQL, Apache Tomcat 10+
 
 ```bash
 git clone https://github.com/nkropinoff/RideReport.git
 cd RideReport
 
-# configure credentials (see above)
+# настрой конфигурацию (см. выше)
 
 mvn clean package
-# deploy target/*.war to Tomcat
+# задеплой target/*.war на Tomcat
 ```
 
 ---
 
-## Project Status
+## Статус проекта
 
-Developed as a semester project at Kazan Federal University (ITIS). The codebase demonstrates a production-style layered Java web application built on the Servlet API without a framework — covering the fundamentals of request lifecycle, session management, role-based access control, and manual dependency wiring.
+Разработан в рамках семестровой работы в ITIS КФУ. Кодовая база демонстрирует production-ориентированное Java-веб-приложение, написанное на Servlet API без фреймворков — с ручной реализацией жизненного цикла запросов, управления сессиями, ролевого контроля доступа и конфигурирования зависимостей.
