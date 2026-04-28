@@ -10,7 +10,7 @@ A web platform for public transport passengers and transit operators. Passengers
 |---|---|
 | ![](docs/screenshots/welcome-1.png) | ![](docs/screenshots/welcome-2.png) |
 | ![](docs/screenshots/report-1.png) | ![](docs/screenshots/report-2.png) |
-| ![](docs/screenshots/report-3.png) | ![](docs/screenshots/company-statistics.png) |
+| ![](docs/screenshots/report-3x.png) | ![](docs/screenshots/company-statistics.png) |
 | ![](docs/screenshots/company-report-details.png) | ![](docs/screenshots/admin-companies.png) |
 
 ---
